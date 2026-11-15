@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#123f3c">
+  <link rel="icon" href="data:,">
+  <title>APS 汇报说明 · 七工艺岛仿真</title>
+  <style>
+    :root{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;font-size:16px;color:#173431;background:#f0f5f4;--ink:#173431;--muted:#526b67;--line:#dbe7e3;--green:#0b6d61;--green-dark:#12443e;--soft:#e9f4f0;--blue:#225d81;--blue-soft:#edf5fa}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:148px}
+    body{margin:0;line-height:1.8;overflow-wrap:break-word}
+    [hidden]{display:none!important}
+    a{color:var(--green);text-underline-offset:3px}
+    button,a{-webkit-tap-highlight-color:transparent}
+    button{font:inherit;cursor:pointer}
+    a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid #4b9e92;outline-offset:4px}
+    .report-shell{width:min(1200px,calc(100% - 48px));margin-inline:auto;min-width:0}
+    .report-header{padding:25px 0 24px}
+    .header-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+    .report-brand{font-size:12px;font-weight:750;letter-spacing:.13em;color:var(--green)}
+    .header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .action{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:8px 15px;border:1px solid #b9d2c9;border-radius:8px;background:#fff;color:var(--green-dark);font-weight:700;text-decoration:none;line-height:1.4}
+    .action.primary{background:var(--green);color:#fff;border-color:var(--green)}
+    .action:hover{background:#e4f2ec}
+    .action.primary:hover{background:#08594f}
+    h1,h2,h3,h4,p{margin:0}
+    h1{font-size:clamp(30px,4.5vw,46px);line-height:1.22;letter-spacing:-.04em}
+    .report-subtitle{max-width:860px;margin-top:12px;color:var(--muted);font-size:16px}
+    .chapter-nav{position:sticky;top:0;z-index:10;background:#f0f5f4f5;border-top:1px solid var(--line);border-bottom:1px solid #cbded6;backdrop-filter:blur(9px)}
+    .chapter-nav-inner{display:flex;align-items:center;gap:5px 14px;flex-wrap:wrap;padding-block:10px}
+    .chapter-nav a{display:inline-block;padding:4px 1px;color:#355c55;text-decoration:none;font-size:13px;font-weight:700;border-bottom:2px solid transparent;line-height:1.6}
+    .chapter-nav a:hover,.chapter-nav a:focus-visible{color:var(--green);border-bottom-color:var(--green)}
+    .report-paper{margin-top:20px;margin-bottom:28px;padding:0 34px;background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 7px 30px #123f3c06}
+    .report-section{padding:32px 0 34px;min-width:0;scroll-margin-top:140px}
+    .report-section+.report-section{border-top:1px solid var(--line)}
+    .section-heading{display:flex;align-items:baseline;gap:12px;margin-bottom:18px}
+    .section-number{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--green);flex:none}
+    h2{font-size:25px;line-height:1.45;letter-spacing:-.02em}
+    h3{font-size:19px;line-height:1.5;margin:22px 0 10px}
+    h4{font-size:16px;line-height:1.5;margin:17px 0 8px}
+    p+p{margin-top:12px}
+    p+ul,p+ol{margin-top:10px}
+    ul,ol{padding-left:1.5em;margin:10px 0 0}
+    li+li{margin-top:7px}
+    p,li,dd,td,th{overflow-wrap:anywhere}
+    .report-section>p,.section-intro{max-width:980px}
+    .section-intro,.muted,.subtle{color:var(--muted)}
+    .section-intro{margin-bottom:18px}
+    .lead,.problem-statement{font-size:19px;line-height:1.85;font-weight:650;color:#153c35}
+    blockquote,.highlight,.goal,.objective,.statement{margin:16px 0;padding:15px 20px;background:var(--soft);border-left:4px solid var(--green);border-radius:0 7px 7px 0;color:#194a3f}
+    blockquote p,.goal p,.objective p{margin:0}
+    .goal,.objective{font-weight:700}
+    .note,.boundary-note,.scope-note{margin-top:15px;padding:11px 15px;background:#f4f8f6;border:1px solid var(--line);border-radius:7px;color:var(--muted);font-size:14px;line-height:1.75}
+    .boundary-note,.scope-note{background:var(--blue-soft);border-color:#d7e5ef;color:#2c5771}
+    .term-legend{display:flex;gap:9px 19px;flex-wrap:wrap;padding:12px 0 4px;margin:12px 0;color:var(--muted);font-size:13px}
+    .term-legend strong{color:var(--green-dark);margin-right:4px}
+    .table-wrap,.scroll{max-width:100%;min-width:0;overflow-x:auto;margin:15px 0 18px;border:1px solid var(--line);border-radius:8px;overscroll-behavior-x:contain}
+    table{width:100%;border-collapse:collapse;text-align:left;font-size:14px;line-height:1.75}
+    table caption{text-align:left;font-weight:700;padding:12px 14px;color:var(--ink)}
+    th,td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top;white-space:normal}
+    th{font-weight:700}
+    thead th{background:#eef5f1;color:#244d42}
+    tbody th{background:#f8fbf9;color:#245449}
+    tbody tr:last-child>*{border-bottom:0}
+    td p+p{margin-top:8px}
+    td ul,td ol{margin-top:0;padding-left:1.3em}
+    .overview-table,.resource-table{min-width:690px}
+    .overview-table th:first-child,.overview-table td:first-child{width:10%}
+    .algorithm-table{min-width:660px;table-layout:fixed}
+    .algorithm-table th:first-child,.algorithm-table td:first-child{width:17%}
+    .algorithm-table th:not(:first-child){width:auto}
+    .decision-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;margin:22px 0 0}
+    .decision-tabs button{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;min-height:55px;padding:9px 8px;border:1px solid #cbded5;border-radius:8px;background:#f7faf8;color:#345e52;font-size:14px;font-weight:700;line-height:1.4}
+    .decision-tabs button span{font-size:12px;font-weight:800;opacity:.85}
+    .decision-tabs button:hover{background:#eaf3ed;border-color:#8cb9a5}
+    .decision-tabs button[aria-selected="true"]{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 6px #0b6d6120}
+    .decision-panel,[data-decision]{margin-top:14px;padding:21px 23px 6px;border:1px solid #cbded5;border-top:4px solid var(--green);border-radius:9px;background:#fff;min-width:0;scroll-margin-top:160px}
+    [data-decision]>h3{font-size:21px;margin:0 0 12px;color:#153f34}
+    [data-decision] h4{color:#245c4b}
+    .decision-fields,dl.decision-fields{display:grid;grid-template-columns:108px minmax(0,1fr);gap:0;margin:16px 0}
+    .decision-fields dt{padding:10px 12px 10px 0;border-top:1px solid var(--line);font-size:14px;color:#205742;font-weight:750}
+    .decision-fields dd{padding:10px 0;border-top:1px solid var(--line);margin:0;min-width:0;font-size:15px}
+    .decision-fields dt:first-of-type,.decision-fields dt:first-of-type+dd{border-top:0}
+    .decision-fields ul,.decision-fields ol{margin:0;padding-left:1.3em}
+    .decision-fields li+li{margin-top:4px}
+    .decision-fields dd>p:first-child{margin-top:0}
+    .tag,.decision-tag{display:inline-flex;align-items:center;padding:2px 8px;border:1px solid #b9d8cb;border-radius:5px;background:#edf7f0;color:#205b48;font-size:12px;font-weight:750;white-space:nowrap;text-decoration:none}
+    a[data-go-decision]{text-decoration:none;font-weight:750;color:var(--green)}
+    a[data-go-decision]:hover{text-decoration:underline}
+    .io-columns,.io-grid,.two-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;min-width:0}
+    .io-columns>*,.io-grid>*,.two-column>*{min-width:0}
+    .io-columns h3,.io-grid h3,.two-column h3{margin-top:0;padding-bottom:8px;border-bottom:2px solid #cbded5}
+    .definition-list{margin:0}
+    .definition-list dt{font-weight:750;color:#245c4b;margin-top:13px}
+    .definition-list dd{margin:4px 0 0;color:#3f5c52}
+    .assumption-list,.constraint-list{margin-top:10px}
+    .assumption-list li,.constraint-list li{padding-left:3px}
+    .constraint-list strong,.assumption-list strong{color:#214e40}
+    .process-flow{display:flex;align-items:stretch;gap:8px;min-width:0;margin:20px 0;flex-wrap:wrap}
+    .process-step{position:relative;flex:1 1 150px;min-width:0;padding:13px 14px;border:1px solid #bdd8cd;border-radius:8px;background:#f1f8f3;line-height:1.65;font-size:14px}
+    .process-step strong{display:block;color:#1e513e;font-size:15px;margin-bottom:3px}
+    .process-step p{font-size:14px}
+    .process-step small{display:block;color:var(--muted);font-size:12px;margin-top:6px}
+    .process-step a[data-go-decision]{display:inline-block;margin:3px 3px 0 0}
+    .process-arrow{display:flex;align-items:center;justify-content:center;color:#6b8f7e;font-size:23px;font-weight:700;flex:0 0 22px;line-height:1.4}
+    .process-parallel{flex:1 1 100%;padding:13px 15px;border:1px dashed #9dbfac;border-radius:8px;background:#fafcfb;min-width:0}
+    .process-parallel>p,.process-parallel>strong{display:block;margin-bottom:10px;text-align:center;color:#285647}
+    .process-branches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;min-width:0}
+    .process-branches>*{min-width:0}
+    .process-label{display:inline-block;font-size:12px;font-weight:750;color:#476b5b}
+    .process-check{background:#fdf9eb;border-color:#e3d5a4}
+    .route-legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:14px 0 16px;font-size:13px;color:#36584c}
+    .route-legend span{display:inline-flex;align-items:center;gap:6px}
+    .route-legend i,.route-legend b{display:inline-block;width:10px;height:10px;flex:none;border-radius:3px;background:var(--route-color,#2e8372)}
+    .route-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;min-width:0}
+    .route-branch{min-width:0;padding:0 10px;border-left:2px solid #d9e7e0}
+    .route-branch>h3,.route-branch>h4{margin:0 0 10px;color:#234d3e}
+    .route-branch>h3 small,.route-branch>h4 small{display:block;margin-top:3px;font-size:12px;font-weight:400;color:var(--muted)}
+    .route-segment{padding:8px 11px;border:1px solid color-mix(in srgb,var(--route-color,#397e69) 25%,#fff);border-left:4px solid var(--route-color,#397e69);border-radius:6px;background:var(--route-light,#edf7f1);min-width:0;font-size:13px;line-height:1.5}
+    .route-segment>div,.route-segment>header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .route-segment strong{font-size:14px}
+    .route-segment small,.route-segment p{display:block;margin-top:2px;color:#486253;font-size:11px}
+    .route-segment .route-time{font-weight:700;white-space:nowrap}
+    .route-arrow{color:#739080;text-align:center;padding:2px 0;font-size:14px;line-height:1.25}
+    .route-branch-tail{display:block;margin-top:9px;color:#526e5d;font-size:12px;text-align:center}
+    .route-join{margin:16px 0;padding:11px 15px;background:#edf4fb;color:#2a547a;border:1px solid #c7dceb;border-radius:8px;text-align:center;font-size:14px;font-weight:700}
+    .route-assembly{display:flex;align-items:stretch;gap:8px;min-width:0}
+    .route-assembly>.route-segment{flex:1;min-width:0}
+    .route-assembly>.route-arrow{display:flex;align-items:center;justify-content:center;flex:0 0 20px;font-size:18px}
+    .route-start,.route-end{padding:10px 15px;border:1px solid #bbd9ca;border-radius:8px;background:#edf7f0;text-align:center;font-weight:700;margin:12px 0}
+    .capability-table{min-width:620px}
+    .report-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:0 0 30px;color:var(--muted);font-size:13px}
+    .report-footer a{text-decoration:none;font-weight:700}
+    code{font-size:.92em;background:#eff5f1;padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+    @media(max-width:850px){
+      .report-shell{width:calc(100% - 32px)}
+      .report-paper{padding-inline:23px}
+      .decision-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .decision-panel,[data-decision]{padding:17px 16px 4px}
+      .io-columns,.io-grid,.two-column{gap:20px}
+    }
+    @media(max-width:600px){
+      :root{font-size:15px}
+      html{scroll-padding-top:166px}
+      .report-shell{width:calc(100% - 24px)}
+      .report-header{padding-top:18px}
+      .header-top{gap:14px;margin-bottom:20px}
+      .report-brand{font-size:11px}
+      .header-actions{gap:7px}
+      .action{padding:8px 10px;font-size:13px}
+      .report-subtitle{font-size:14px}
+      .chapter-nav-inner{gap:4px 12px;padding-block:8px}
+      .chapter-nav a{font-size:12px}
+      .report-paper{padding-inline:15px;border-radius:10px;margin-top:14px}
+      .report-section{padding-block:24px;scroll-margin-top:158px}
+      h2{font-size:21px}
+      h3{font-size:18px}
+      .section-heading{gap:9px;margin-bottom:15px}
+      .lead,.problem-statement{font-size:17px}
+      .decision-tabs{gap:5px}
+      .decision-tabs button{min-height:56px;flex-direction:column;gap:2px;font-size:12px}
+      .decision-fields,dl.decision-fields{grid-template-columns:1fr}
+      .decision-fields dt{padding:10px 0 2px}
+      .decision-fields dd{padding:2px 0 10px;border-top:0}
+      .decision-fields dt:first-of-type{padding-top:0}
+      .io-columns,.io-grid,.two-column{grid-template-columns:1fr;gap:23px}
+      .process-flow{flex-direction:column;gap:6px}
+      .process-step{flex:auto}
+      .process-arrow{flex:auto;min-height:20px;font-size:0}
+      .process-arrow::before{content:"↓";font-size:22px}
+      .process-parallel{flex:auto;padding:11px}
+      .process-branches{grid-template-columns:1fr}
+      .route-three{gap:8px}
+      .route-branch{padding:0 4px;border-left-width:1px}
+      .route-segment{padding:6px 5px;border-left-width:3px;font-size:11px}
+      .route-segment>div,.route-segment>header{flex-direction:column;align-items:flex-start;gap:1px}
+      .route-segment strong{font-size:12px}
+      .route-segment small,.route-segment p{font-size:10px}
+      .route-branch>h3,.route-branch>h4{font-size:14px}
+      .route-branch>h3 small,.route-branch>h4 small{font-size:10px}
+      .route-assembly{gap:4px}
+      .route-assembly>.route-arrow{flex-basis:12px;font-size:14px}
+      .route-join{padding:9px;font-size:12px}
+      blockquote,.highlight,.goal,.objective,.statement{padding:12px 14px}
+    }
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+    @page{size:A4;margin:14mm 13mm}
+    @media print{
+      :root{font-size:10.5pt;background:#fff;color:#172e28}
+      body{background:#fff;line-height:1.6;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+      html{scroll-behavior:auto}
+      .report-shell{width:100%;max-width:none;margin:0}
+      .report-header{padding:0 0 12pt}
+      .header-top{margin-bottom:9pt}
+      .report-brand{font-size:8.5pt}
+      h1{font-size:24pt}
+      h2{font-size:16pt}
+      h3{font-size:12.5pt}
+      h4{font-size:11pt}
+      .report-subtitle{font-size:10pt;margin-top:7pt}
+      .header-actions,.chapter-nav,.decision-tabs,.screen-only,.print-page,.report-footer{display:none!important}
+      .report-paper{padding:0;margin:0;border:0;border-radius:0;box-shadow:none}
+      .report-section{padding:16pt 0 18pt;scroll-margin:0;break-inside:auto}
+      .section-heading{margin-bottom:10pt}
+      h2,h3,h4,.section-heading{break-after:avoid}
+      p,li,dd{orphans:3;widows:3}
+      .lead,.problem-statement{font-size:12pt}
+      blockquote,.highlight,.goal,.objective,.statement{padding:9pt 12pt;margin:10pt 0}
+      .note,.boundary-note,.scope-note{font-size:9pt;padding:7pt 10pt}
+      #decisions [data-decision][hidden]{display:block!important}
+      [data-decision],.decision-panel{padding:12pt 0 0;margin-top:14pt;border:0;border-top:1px solid #b6d0c2;border-radius:0;break-inside:auto}
+      [data-decision]>h3{font-size:13pt;break-after:avoid}
+      .decision-fields,dl.decision-fields{grid-template-columns:68pt minmax(0,1fr);margin:8pt 0}
+      .decision-fields dt,.decision-fields dd{font-size:10pt;padding-block:7pt}
+      .decision-fields dd{border-top:1px solid var(--line)}
+      .decision-fields dt:first-of-type+dd{border-top:0}
+      .table-wrap,.scroll{overflow:visible;max-height:none;border-radius:0;margin:10pt 0 12pt}
+      table,.overview-table,.algorithm-table,.resource-table,.capability-table{min-width:0!important;width:100%;font-size:9pt;line-height:1.55}
+      th,td{padding:7pt 8pt}
+      thead{display:table-header-group}
+      tr{break-inside:avoid}
+      table caption{padding:7pt 8pt}
+      .io-columns,.io-grid,.two-column{gap:18pt;grid-template-columns:repeat(2,minmax(0,1fr))}
+      .process-flow{gap:5pt;flex-direction:row}
+      .process-step{padding:8pt;font-size:9pt;flex:1 1 90pt}
+      .process-step strong{font-size:10pt}
+      .process-step p{font-size:9pt}
+      .process-arrow{font-size:16pt;flex:0 0 12pt}
+      .process-arrow::before{content:none}
+      .process-parallel{flex:1 1 100%;padding:8pt}
+      .process-branches{grid-template-columns:repeat(3,minmax(0,1fr));gap:7pt}
+      #routes{break-before:page}
+      .route-three{grid-template-columns:repeat(3,minmax(0,1fr));gap:10pt}
+      .route-branch{padding:0 5pt}
+      .route-branch>h3,.route-branch>h4{font-size:10.5pt;margin-bottom:6pt}
+      .route-branch>h3 small,.route-branch>h4 small{font-size:8pt}
+      .route-segment{padding:4pt 6pt;font-size:8.5pt;line-height:1.3;break-inside:avoid}
+      .route-segment>div,.route-segment>header{flex-direction:row;align-items:center}
+      .route-segment strong{font-size:9pt}
+      .route-segment small,.route-segment p{font-size:7.5pt;margin-top:1pt}
+      .route-arrow{font-size:8.5pt;line-height:1.1;padding:1pt 0}
+      .route-join{font-size:9pt;padding:7pt;margin:9pt 0}
+      .route-start,.route-end{padding:7pt;margin:8pt 0;font-size:9pt}
+      .route-assembly{gap:5pt}
+      .route-assembly>.route-arrow{flex-basis:12pt;font-size:12pt}
+      a{color:inherit;text-decoration:none}
+    }
+  </style>
+</head>
+<body>
+  <header class="report-shell report-header">
+    <div class="header-top">
+      <p class="report-brand">APS · 业务与决策</p>
+      <div class="header-actions">
+        <a class="action primary" id="back-to-simulation" href="./index.html"><span aria-hidden="true">←</span> 返回整体仿真</a>
+        <button class="action print-page" id="print-report" type="button">打印 / 保存 PDF</button>
+      </div>
+    </div>
+    <h1>APS 汇报说明</h1>
+    <p class="report-subtitle">从订单到达，到加工、搬运、齐套与完工。先说明业务问题，再明确决策、资源和算法边界。</p>
+  </header>
+
+  <nav class="chapter-nav" aria-label="汇报目录">
+    <div class="report-shell chapter-nav-inner">
+      <a href="#problem">01 问题与目标</a>
+      <a href="#decisions">02 六个决策</a>
+      <a href="#resources">03 资源与柔性</a>
+      <a href="#inputs-outputs">04 输入与输出</a>
+      <a href="#assumptions-constraints">05 假设与约束</a>
+      <a href="#flow">06 订单与工件流程</a>
+      <a href="#routes">07 完整工艺路线</a>
+      <a href="#capabilities">08 当前能力</a>
+    </div>
+  </nav>
+
+  <main class="report-shell report-paper">
+    <section class="report-section" id="problem" aria-labelledby="problem-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">01</span><h2 id="problem-title">要解决什么问题，为什么需要 APS</h2></div>
+      __REPORT_BODY__
+    </section>
+
+    <section class="report-section" id="decisions" aria-labelledby="decisions-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">02</span><h2 id="decisions-title">六个需要协调的决策</h2></div>
+      <p class="section-intro">先看每个决策回答什么问题，再逐项查看参数、约束、当前规则，以及交给算法求解时的难点。</p>
+      __DECISION_OVERVIEW__
+      <div class="term-legend" aria-label="阅读说明">
+        <span><strong>参数</strong>本次运行前给定的条件</span>
+        <span><strong>约束</strong>排程必须满足的要求</span>
+        <span><strong>规则</strong>当前怎样从可行选择中挑选</span>
+        <span><strong>算法难点</strong>进一步优化需要解决的问题</span>
+      </div>
+      <p class="scope-note">使用求解器、元启发式或学习方法，替换的是“怎样从可行选择中选”的策略。工艺先后、容量和同单齐套等约束仍须满足；找到可行解与证明最优，也需要分别说明。</p>
+      <div class="decision-tabs" role="tablist" aria-label="选择决策说明" aria-orientation="horizontal">
+        <button type="button" role="tab" id="tab-D1" aria-controls="panel-D1" aria-selected="true" tabindex="0" data-decision-tab="D1"><span>D1</span> S01 排批</button>
+        <button type="button" role="tab" id="tab-D2" aria-controls="panel-D2" aria-selected="false" tabindex="-1" data-decision-tab="D2"><span>D2</span> 下游投放</button>
+        <button type="button" role="tab" id="tab-D3" aria-controls="panel-D3" aria-selected="false" tabindex="-1" data-decision-tab="D3"><span>D3</span> 排序与开工</button>
+        <button type="button" role="tab" id="tab-D4" aria-controls="panel-D4" aria-selected="false" tabindex="-1" data-decision-tab="D4"><span>D4</span> 工位分配</button>
+        <button type="button" role="tab" id="tab-D5" aria-controls="panel-D5" aria-selected="false" tabindex="-1" data-decision-tab="D5"><span>D5</span> 搬运安排</button>
+        <button type="button" role="tab" id="tab-D6" aria-controls="panel-D6" aria-selected="false" tabindex="-1" data-decision-tab="D6"><span>D6</span> 合装安排</button>
+      </div>
+      __DECISION_PANELS__
+      <noscript><style>.decision-tabs{display:none!important}#decisions [data-decision][hidden]{display:block!important}.print-page{display:none!important}</style><p class="note">当前浏览器未启用 JavaScript，六个决策说明已全部展开。</p></noscript>
+    </section>
+
+    <section class="report-section" id="resources" aria-labelledby="resources-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">03</span><h2 id="resources-title">涉及哪些资源，柔性是什么意思</h2></div>
+      __RESOURCE_CONTENT__
+    </section>
+
+    <section class="report-section" id="inputs-outputs" aria-labelledby="inputs-outputs-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">04</span><h2 id="inputs-outputs-title">系统的输入与输出</h2></div>
+      __IO_CONTENT__
+    </section>
+
+    <section class="report-section" id="assumptions-constraints" aria-labelledby="assumptions-constraints-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">05</span><h2 id="assumptions-constraints-title">假设条件与生产约束</h2></div>
+      <p class="section-intro">假设说明模型暂时怎样描述生产；约束说明一份安排要能执行，必须满足哪些要求。</p>
+      <h3>当前采用的假设</h3>
+      __ASSUMPTION_CONTENT__
+      <h3>任何可执行方案都要满足的约束</h3>
+      __CONSTRAINT_CONTENT__
+    </section>
+
+    <section class="report-section" id="flow" aria-labelledby="flow-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">06</span><h2 id="flow-title">订单和工件怎样经过系统</h2></div>
+      <p class="section-intro">入口首先是订单。S01 结束后形成 A、B、C 三件，按订单齐套合装后再成为一件总成 P。流程中的 D1—D6 可以点击查看对应决策。</p>
+      <h3>一单的整体流程</h3>
+      __MAIN_FLOW__
+      <h3>放大看一件的加工与搬运循环</h3>
+      __PIECE_FLOW__
+    </section>
+
+    <section class="report-section" id="routes" aria-labelledby="routes-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">07</span><h2 id="routes-title">完整工艺路线</h2></div>
+      <p class="section-intro">工艺岛与部件用符号表示。每个节点是一段同岛连续加工，时间为整段秒数；跨岛运输与等待另计。</p>
+      __FULL_ROUTE__
+    </section>
+
+    <section class="report-section" id="capabilities" aria-labelledby="capabilities-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">08</span><h2 id="capabilities-title">当前系统做到哪里</h2></div>
+      __CAPABILITY_CONTENT__
+    </section>
+  </main>
+
+  <footer class="report-shell report-footer">
+    <p>APS 汇报说明 · 七工艺岛仿真</p>
+    <a href="./index.html" id="footer-simulation-link">返回整体仿真 <span aria-hidden="true">→</span></a>
+  </footer>
+
+  <script>
+    (function () {
+      "use strict";
+      if (location.protocol === "blob:") {
+        document.querySelectorAll("#back-to-simulation, #footer-simulation-link").forEach(function (link) {
+          link.addEventListener("click", function (event) {
+            event.preventDefault();
+            window.close();
+          });
+        });
+      }
+      var tabs = Array.from(document.querySelectorAll("[data-decision-tab]"));
+      var panels = Array.from(document.querySelectorAll("[data-decision]"));
+
+      function selectDecision(id, moveFocus) {
+        var target = tabs.find(function (tab) { return tab.dataset.decisionTab === id; });
+        if (!target) return false;
+        tabs.forEach(function (tab) {
+          var selected = tab === target;
+          tab.setAttribute("aria-selected", String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+        });
+        panels.forEach(function (panel) {
+          panel.hidden = panel.dataset.decision !== id;
+          panel.setAttribute("role", "tabpanel");
+          panel.setAttribute("aria-labelledby", "tab-" + panel.dataset.decision);
+          panel.tabIndex = 0;
+        });
+        if (moveFocus) target.focus();
+        return true;
+      }
+
+      tabs.forEach(function (tab, index) {
+        tab.addEventListener("click", function () {
+          selectDecision(tab.dataset.decisionTab, false);
+        });
+        tab.addEventListener("keydown", function (event) {
+          var next = null;
+          if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
+          if (event.key === "ArrowLeft") next = (index - 1 + tabs.length) % tabs.length;
+          if (event.key === "Home") next = 0;
+          if (event.key === "End") next = tabs.length - 1;
+          if (next === null) return;
+          event.preventDefault();
+          selectDecision(tabs[next].dataset.decisionTab, true);
+        });
+      });
+
+      document.querySelectorAll("[data-go-decision]").forEach(function (link) {
+        link.addEventListener("click", function (event) {
+          if (!selectDecision(link.dataset.goDecision, true)) return;
+          event.preventDefault();
+          document.getElementById("decisions").scrollIntoView({ block: "start" });
+        });
+      });
+
+      document.querySelectorAll("table").forEach(function (table) {
+        if (table.closest(".table-wrap, .scroll")) return;
+        var wrapper = document.createElement("div");
+        wrapper.className = "table-wrap";
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      });
+      document.querySelectorAll(".table-wrap, .scroll").forEach(function (wrapper) {
+        wrapper.tabIndex = 0;
+        wrapper.setAttribute("role", "region");
+        var table = wrapper.querySelector("table");
+        var label = table && (table.getAttribute("aria-label") || (table.caption && table.caption.textContent));
+        wrapper.setAttribute("aria-label", label || "表格，窄屏可左右滚动");
+      });
+
+      var initial = (location.hash.match(/^#(?:panel-|tab-)?(D[1-6])$/) || [])[1];
+      selectDecision(initial || "D1", false);
+      var printButton = document.getElementById("print-report");
+      printButton.addEventListener("click", function () { window.print(); });
+    }());
+  </script>
+</body>
+</html>

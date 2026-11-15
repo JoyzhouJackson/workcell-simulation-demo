@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 
 from simpy_six_island_baseline import Baseline
+from build_aps_briefing import render_briefing
 
 
 ROOT = Path(__file__).resolve().parent
@@ -37,9 +38,12 @@ def build(hosted, offline=None):
     trace = json.dumps(model.trace_data(), ensure_ascii=False, separators=(",", ":"))
 
     layout = (ROOT / "assets/synthetic-layout.webp").read_bytes()
+    briefing = render_briefing()
+    (hosted.parent / "aps-briefing.html").write_text(briefing, encoding="utf-8", newline="\n")
     template = (ROOT / "seven_island_demo.template.html").read_text(encoding="utf-8")
     fields = {
         "__SIMULATION_JSON__": trace,
+        "__APS_BRIEFING_JSON__": json.dumps(briefing, ensure_ascii=False).replace("<", "\\u003c"),
         "__SIX_ISLAND_ENGINE__": (ROOT / "six_island_engine.js").read_text(encoding="utf-8"),
         "__ARRIVAL_ENGINE__": (ROOT / "scheduling/browser/arrival-engine.js").read_text(encoding="utf-8"),
         "__BATCHING_VIEW__": (ROOT / "batching_island_view.js").read_text(encoding="utf-8"),

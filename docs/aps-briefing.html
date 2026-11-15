@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#123f3c">
+  <link rel="icon" href="data:,">
+  <title>APS 汇报说明 · 七工艺岛仿真</title>
+  <style>
+    :root{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;font-size:16px;color:#173431;background:#f0f5f4;--ink:#173431;--muted:#526b67;--line:#dbe7e3;--green:#0b6d61;--green-dark:#12443e;--soft:#e9f4f0;--blue:#225d81;--blue-soft:#edf5fa}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:148px}
+    body{margin:0;line-height:1.8;overflow-wrap:break-word}
+    [hidden]{display:none!important}
+    a{color:var(--green);text-underline-offset:3px}
+    button,a{-webkit-tap-highlight-color:transparent}
+    button{font:inherit;cursor:pointer}
+    a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid #4b9e92;outline-offset:4px}
+    .report-shell{width:min(1200px,calc(100% - 48px));margin-inline:auto;min-width:0}
+    .report-header{padding:25px 0 24px}
+    .header-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+    .report-brand{font-size:12px;font-weight:750;letter-spacing:.13em;color:var(--green)}
+    .header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .action{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:8px 15px;border:1px solid #b9d2c9;border-radius:8px;background:#fff;color:var(--green-dark);font-weight:700;text-decoration:none;line-height:1.4}
+    .action.primary{background:var(--green);color:#fff;border-color:var(--green)}
+    .action:hover{background:#e4f2ec}
+    .action.primary:hover{background:#08594f}
+    h1,h2,h3,h4,p{margin:0}
+    h1{font-size:clamp(30px,4.5vw,46px);line-height:1.22;letter-spacing:-.04em}
+    .report-subtitle{max-width:860px;margin-top:12px;color:var(--muted);font-size:16px}
+    .chapter-nav{position:sticky;top:0;z-index:10;background:#f0f5f4f5;border-top:1px solid var(--line);border-bottom:1px solid #cbded6;backdrop-filter:blur(9px)}
+    .chapter-nav-inner{display:flex;align-items:center;gap:5px 14px;flex-wrap:wrap;padding-block:10px}
+    .chapter-nav a{display:inline-block;padding:4px 1px;color:#355c55;text-decoration:none;font-size:13px;font-weight:700;border-bottom:2px solid transparent;line-height:1.6}
+    .chapter-nav a:hover,.chapter-nav a:focus-visible{color:var(--green);border-bottom-color:var(--green)}
+    .report-paper{margin-top:20px;margin-bottom:28px;padding:0 34px;background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 7px 30px #123f3c06}
+    .report-section{padding:32px 0 34px;min-width:0;scroll-margin-top:140px}
+    .report-section+.report-section{border-top:1px solid var(--line)}
+    .section-heading{display:flex;align-items:baseline;gap:12px;margin-bottom:18px}
+    .section-number{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--green);flex:none}
+    h2{font-size:25px;line-height:1.45;letter-spacing:-.02em}
+    h3{font-size:19px;line-height:1.5;margin:22px 0 10px}
+    h4{font-size:16px;line-height:1.5;margin:17px 0 8px}
+    p+p{margin-top:12px}
+    p+ul,p+ol{margin-top:10px}
+    ul,ol{padding-left:1.5em;margin:10px 0 0}
+    li+li{margin-top:7px}
+    p,li,dd,td,th{overflow-wrap:anywhere}
+    .report-section>p,.section-intro{max-width:980px}
+    .section-intro,.muted,.subtle{color:var(--muted)}
+    .section-intro{margin-bottom:18px}
+    .lead,.problem-statement{font-size:19px;line-height:1.85;font-weight:650;color:#153c35}
+    blockquote,.highlight,.goal,.objective,.statement{margin:16px 0;padding:15px 20px;background:var(--soft);border-left:4px solid var(--green);border-radius:0 7px 7px 0;color:#194a3f}
+    blockquote p,.goal p,.objective p{margin:0}
+    .goal,.objective{font-weight:700}
+    .note,.boundary-note,.scope-note{margin-top:15px;padding:11px 15px;background:#f4f8f6;border:1px solid var(--line);border-radius:7px;color:var(--muted);font-size:14px;line-height:1.75}
+    .boundary-note,.scope-note{background:var(--blue-soft);border-color:#d7e5ef;color:#2c5771}
+    .term-legend{display:flex;gap:9px 19px;flex-wrap:wrap;padding:12px 0 4px;margin:12px 0;color:var(--muted);font-size:13px}
+    .term-legend strong{color:var(--green-dark);margin-right:4px}
+    .table-wrap,.scroll{max-width:100%;min-width:0;overflow-x:auto;margin:15px 0 18px;border:1px solid var(--line);border-radius:8px;overscroll-behavior-x:contain}
+    table{width:100%;border-collapse:collapse;text-align:left;font-size:14px;line-height:1.75}
+    table caption{text-align:left;font-weight:700;padding:12px 14px;color:var(--ink)}
+    th,td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top;white-space:normal}
+    th{font-weight:700}
+    thead th{background:#eef5f1;color:#244d42}
+    tbody th{background:#f8fbf9;color:#245449}
+    tbody tr:last-child>*{border-bottom:0}
+    td p+p{margin-top:8px}
+    td ul,td ol{margin-top:0;padding-left:1.3em}
+    .overview-table,.resource-table{min-width:690px}
+    .overview-table th:first-child,.overview-table td:first-child{width:10%}
+    .algorithm-table{min-width:660px;table-layout:fixed}
+    .algorithm-table th:first-child,.algorithm-table td:first-child{width:17%}
+    .algorithm-table th:not(:first-child){width:auto}
+    .decision-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;margin:22px 0 0}
+    .decision-tabs button{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;min-height:55px;padding:9px 8px;border:1px solid #cbded5;border-radius:8px;background:#f7faf8;color:#345e52;font-size:14px;font-weight:700;line-height:1.4}
+    .decision-tabs button span{font-size:12px;font-weight:800;opacity:.85}
+    .decision-tabs button:hover{background:#eaf3ed;border-color:#8cb9a5}
+    .decision-tabs button[aria-selected="true"]{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 6px #0b6d6120}
+    .decision-panel,[data-decision]{margin-top:14px;padding:21px 23px 6px;border:1px solid #cbded5;border-top:4px solid var(--green);border-radius:9px;background:#fff;min-width:0;scroll-margin-top:160px}
+    [data-decision]>h3{font-size:21px;margin:0 0 12px;color:#153f34}
+    [data-decision] h4{color:#245c4b}
+    .decision-fields,dl.decision-fields{display:grid;grid-template-columns:108px minmax(0,1fr);gap:0;margin:16px 0}
+    .decision-fields dt{padding:10px 12px 10px 0;border-top:1px solid var(--line);font-size:14px;color:#205742;font-weight:750}
+    .decision-fields dd{padding:10px 0;border-top:1px solid var(--line);margin:0;min-width:0;font-size:15px}
+    .decision-fields dt:first-of-type,.decision-fields dt:first-of-type+dd{border-top:0}
+    .decision-fields ul,.decision-fields ol{margin:0;padding-left:1.3em}
+    .decision-fields li+li{margin-top:4px}
+    .decision-fields dd>p:first-child{margin-top:0}
+    .tag,.decision-tag{display:inline-flex;align-items:center;padding:2px 8px;border:1px solid #b9d8cb;border-radius:5px;background:#edf7f0;color:#205b48;font-size:12px;font-weight:750;white-space:nowrap;text-decoration:none}
+    a[data-go-decision]{text-decoration:none;font-weight:750;color:var(--green)}
+    a[data-go-decision]:hover{text-decoration:underline}
+    .io-columns,.io-grid,.two-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;min-width:0}
+    .io-columns>*,.io-grid>*,.two-column>*{min-width:0}
+    .io-columns h3,.io-grid h3,.two-column h3{margin-top:0;padding-bottom:8px;border-bottom:2px solid #cbded5}
+    .definition-list{margin:0}
+    .definition-list dt{font-weight:750;color:#245c4b;margin-top:13px}
+    .definition-list dd{margin:4px 0 0;color:#3f5c52}
+    .assumption-list,.constraint-list{margin-top:10px}
+    .assumption-list li,.constraint-list li{padding-left:3px}
+    .constraint-list strong,.assumption-list strong{color:#214e40}
+    .process-flow{display:flex;align-items:stretch;gap:8px;min-width:0;margin:20px 0;flex-wrap:wrap}
+    .process-step{position:relative;flex:1 1 150px;min-width:0;padding:13px 14px;border:1px solid #bdd8cd;border-radius:8px;background:#f1f8f3;line-height:1.65;font-size:14px}
+    .process-step strong{display:block;color:#1e513e;font-size:15px;margin-bottom:3px}
+    .process-step p{font-size:14px}
+    .process-step small{display:block;color:var(--muted);font-size:12px;margin-top:6px}
+    .process-step a[data-go-decision]{display:inline-block;margin:3px 3px 0 0}
+    .process-arrow{display:flex;align-items:center;justify-content:center;color:#6b8f7e;font-size:23px;font-weight:700;flex:0 0 22px;line-height:1.4}
+    .process-parallel{flex:1 1 100%;padding:13px 15px;border:1px dashed #9dbfac;border-radius:8px;background:#fafcfb;min-width:0}
+    .process-parallel>p,.process-parallel>strong{display:block;margin-bottom:10px;text-align:center;color:#285647}
+    .process-branches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;min-width:0}
+    .process-branches>*{min-width:0}
+    .process-label{display:inline-block;font-size:12px;font-weight:750;color:#476b5b}
+    .process-check{background:#fdf9eb;border-color:#e3d5a4}
+    .route-legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:14px 0 16px;font-size:13px;color:#36584c}
+    .route-legend span{display:inline-flex;align-items:center;gap:6px}
+    .route-legend i,.route-legend b{display:inline-block;width:10px;height:10px;flex:none;border-radius:3px;background:var(--route-color,#2e8372)}
+    .route-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;min-width:0}
+    .route-branch{min-width:0;padding:0 10px;border-left:2px solid #d9e7e0}
+    .route-branch>h3,.route-branch>h4{margin:0 0 10px;color:#234d3e}
+    .route-branch>h3 small,.route-branch>h4 small{display:block;margin-top:3px;font-size:12px;font-weight:400;color:var(--muted)}
+    .route-segment{padding:8px 11px;border:1px solid color-mix(in srgb,var(--route-color,#397e69) 25%,#fff);border-left:4px solid var(--route-color,#397e69);border-radius:6px;background:var(--route-light,#edf7f1);min-width:0;font-size:13px;line-height:1.5}
+    .route-segment>div,.route-segment>header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .route-segment strong{font-size:14px}
+    .route-segment small,.route-segment p{display:block;margin-top:2px;color:#486253;font-size:11px}
+    .route-segment .route-time{font-weight:700;white-space:nowrap}
+    .route-arrow{color:#739080;text-align:center;padding:2px 0;font-size:14px;line-height:1.25}
+    .route-branch-tail{display:block;margin-top:9px;color:#526e5d;font-size:12px;text-align:center}
+    .route-join{margin:16px 0;padding:11px 15px;background:#edf4fb;color:#2a547a;border:1px solid #c7dceb;border-radius:8px;text-align:center;font-size:14px;font-weight:700}
+    .route-assembly{display:flex;align-items:stretch;gap:8px;min-width:0}
+    .route-assembly>.route-segment{flex:1;min-width:0}
+    .route-assembly>.route-arrow{display:flex;align-items:center;justify-content:center;flex:0 0 20px;font-size:18px}
+    .route-start,.route-end{padding:10px 15px;border:1px solid #bbd9ca;border-radius:8px;background:#edf7f0;text-align:center;font-weight:700;margin:12px 0}
+    .capability-table{min-width:620px}
+    .report-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:0 0 30px;color:var(--muted);font-size:13px}
+    .report-footer a{text-decoration:none;font-weight:700}
+    code{font-size:.92em;background:#eff5f1;padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+    @media(max-width:850px){
+      .report-shell{width:calc(100% - 32px)}
+      .report-paper{padding-inline:23px}
+      .decision-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .decision-panel,[data-decision]{padding:17px 16px 4px}
+      .io-columns,.io-grid,.two-column{gap:20px}
+    }
+    @media(max-width:600px){
+      :root{font-size:15px}
+      html{scroll-padding-top:166px}
+      .report-shell{width:calc(100% - 24px)}
+      .report-header{padding-top:18px}
+      .header-top{gap:14px;margin-bottom:20px}
+      .report-brand{font-size:11px}
+      .header-actions{gap:7px}
+      .action{padding:8px 10px;font-size:13px}
+      .report-subtitle{font-size:14px}
+      .chapter-nav-inner{gap:4px 12px;padding-block:8px}
+      .chapter-nav a{font-size:12px}
+      .report-paper{padding-inline:15px;border-radius:10px;margin-top:14px}
+      .report-section{padding-block:24px;scroll-margin-top:158px}
+      h2{font-size:21px}
+      h3{font-size:18px}
+      .section-heading{gap:9px;margin-bottom:15px}
+      .lead,.problem-statement{font-size:17px}
+      .decision-tabs{gap:5px}
+      .decision-tabs button{min-height:56px;flex-direction:column;gap:2px;font-size:12px}
+      .decision-fields,dl.decision-fields{grid-template-columns:1fr}
+      .decision-fields dt{padding:10px 0 2px}
+      .decision-fields dd{padding:2px 0 10px;border-top:0}
+      .decision-fields dt:first-of-type{padding-top:0}
+      .io-columns,.io-grid,.two-column{grid-template-columns:1fr;gap:23px}
+      .process-flow{flex-direction:column;gap:6px}
+      .process-step{flex:auto}
+      .process-arrow{flex:auto;min-height:20px;font-size:0}
+      .process-arrow::before{content:"↓";font-size:22px}
+      .process-parallel{flex:auto;padding:11px}
+      .process-branches{grid-template-columns:1fr}
+      .route-three{gap:8px}
+      .route-branch{padding:0 4px;border-left-width:1px}
+      .route-segment{padding:6px 5px;border-left-width:3px;font-size:11px}
+      .route-segment>div,.route-segment>header{flex-direction:column;align-items:flex-start;gap:1px}
+      .route-segment strong{font-size:12px}
+      .route-segment small,.route-segment p{font-size:10px}
+      .route-branch>h3,.route-branch>h4{font-size:14px}
+      .route-branch>h3 small,.route-branch>h4 small{font-size:10px}
+      .route-assembly{gap:4px}
+      .route-assembly>.route-arrow{flex-basis:12px;font-size:14px}
+      .route-join{padding:9px;font-size:12px}
+      blockquote,.highlight,.goal,.objective,.statement{padding:12px 14px}
+    }
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+    @page{size:A4;margin:14mm 13mm}
+    @media print{
+      :root{font-size:10.5pt;background:#fff;color:#172e28}
+      body{background:#fff;line-height:1.6;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+      html{scroll-behavior:auto}
+      .report-shell{width:100%;max-width:none;margin:0}
+      .report-header{padding:0 0 12pt}
+      .header-top{margin-bottom:9pt}
+      .report-brand{font-size:8.5pt}
+      h1{font-size:24pt}
+      h2{font-size:16pt}
+      h3{font-size:12.5pt}
+      h4{font-size:11pt}
+      .report-subtitle{font-size:10pt;margin-top:7pt}
+      .header-actions,.chapter-nav,.decision-tabs,.screen-only,.print-page,.report-footer{display:none!important}
+      .report-paper{padding:0;margin:0;border:0;border-radius:0;box-shadow:none}
+      .report-section{padding:16pt 0 18pt;scroll-margin:0;break-inside:auto}
+      .section-heading{margin-bottom:10pt}
+      h2,h3,h4,.section-heading{break-after:avoid}
+      p,li,dd{orphans:3;widows:3}
+      .lead,.problem-statement{font-size:12pt}
+      blockquote,.highlight,.goal,.objective,.statement{padding:9pt 12pt;margin:10pt 0}
+      .note,.boundary-note,.scope-note{font-size:9pt;padding:7pt 10pt}
+      #decisions [data-decision][hidden]{display:block!important}
+      [data-decision],.decision-panel{padding:12pt 0 0;margin-top:14pt;border:0;border-top:1px solid #b6d0c2;border-radius:0;break-inside:auto}
+      [data-decision]>h3{font-size:13pt;break-after:avoid}
+      .decision-fields,dl.decision-fields{grid-template-columns:68pt minmax(0,1fr);margin:8pt 0}
+      .decision-fields dt,.decision-fields dd{font-size:10pt;padding-block:7pt}
+      .decision-fields dd{border-top:1px solid var(--line)}
+      .decision-fields dt:first-of-type+dd{border-top:0}
+      .table-wrap,.scroll{overflow:visible;max-height:none;border-radius:0;margin:10pt 0 12pt}
+      table,.overview-table,.algorithm-table,.resource-table,.capability-table{min-width:0!important;width:100%;font-size:9pt;line-height:1.55}
+      th,td{padding:7pt 8pt}
+      thead{display:table-header-group}
+      tr{break-inside:avoid}
+      table caption{padding:7pt 8pt}
+      .io-columns,.io-grid,.two-column{gap:18pt;grid-template-columns:repeat(2,minmax(0,1fr))}
+      .process-flow{gap:5pt;flex-direction:row}
+      .process-step{padding:8pt;font-size:9pt;flex:1 1 90pt}
+      .process-step strong{font-size:10pt}
+      .process-step p{font-size:9pt}
+      .process-arrow{font-size:16pt;flex:0 0 12pt}
+      .process-arrow::before{content:none}
+      .process-parallel{flex:1 1 100%;padding:8pt}
+      .process-branches{grid-template-columns:repeat(3,minmax(0,1fr));gap:7pt}
+      #routes{break-before:page}
+      .route-three{grid-template-columns:repeat(3,minmax(0,1fr));gap:10pt}
+      .route-branch{padding:0 5pt}
+      .route-branch>h3,.route-branch>h4{font-size:10.5pt;margin-bottom:6pt}
+      .route-branch>h3 small,.route-branch>h4 small{font-size:8pt}
+      .route-segment{padding:4pt 6pt;font-size:8.5pt;line-height:1.3;break-inside:avoid}
+      .route-segment>div,.route-segment>header{flex-direction:row;align-items:center}
+      .route-segment strong{font-size:9pt}
+      .route-segment small,.route-segment p{font-size:7.5pt;margin-top:1pt}
+      .route-arrow{font-size:8.5pt;line-height:1.1;padding:1pt 0}
+      .route-join{font-size:9pt;padding:7pt;margin:9pt 0}
+      .route-start,.route-end{padding:7pt;margin:8pt 0;font-size:9pt}
+      .route-assembly{gap:5pt}
+      .route-assembly>.route-arrow{flex-basis:12pt;font-size:12pt}
+      a{color:inherit;text-decoration:none}
+    }
+  </style>
+</head>
+<body>
+  <header class="report-shell report-header">
+    <div class="header-top">
+      <p class="report-brand">APS · 业务与决策</p>
+      <div class="header-actions">
+        <a class="action primary" id="back-to-simulation" href="./index.html"><span aria-hidden="true">←</span> 返回整体仿真</a>
+        <button class="action print-page" id="print-report" type="button">打印 / 保存 PDF</button>
+      </div>
+    </div>
+    <h1>APS 汇报说明</h1>
+    <p class="report-subtitle">从订单到达，到加工、搬运、齐套与完工。先说明业务问题，再明确决策、资源和算法边界。</p>
+  </header>
+
+  <nav class="chapter-nav" aria-label="汇报目录">
+    <div class="report-shell chapter-nav-inner">
+      <a href="#problem">01 问题与目标</a>
+      <a href="#decisions">02 六个决策</a>
+      <a href="#resources">03 资源与柔性</a>
+      <a href="#inputs-outputs">04 输入与输出</a>
+      <a href="#assumptions-constraints">05 假设与约束</a>
+      <a href="#flow">06 订单与工件流程</a>
+      <a href="#routes">07 完整工艺路线</a>
+      <a href="#capabilities">08 当前能力</a>
+    </div>
+  </nav>
+
+  <main class="report-shell report-paper">
+    <section class="report-section" id="problem" aria-labelledby="problem-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">01</span><h2 id="problem-title">要解决什么问题，为什么需要 APS</h2></div>
+      <p class="lead">订单依次到达后，协调 S01 批处理、各工艺岛加工、零件合装和跨岛搬运，安排“谁先做、在哪里做、什么时候做、什么时候运”，在设备和库位容量允许的前提下，让订单尽快完成。</p><h3>为什么需要 APS？</h3><p>一单对应一件最终产品，包含部件 A、B、C。三件可以并行加工，但必须按订单汇合；零件和总成 P 还会多次返回某些工艺岛。</p><p>加工位和缓冲区容量有限。加工完成后，也可能因为没有位置回存、目的岛无法接收或同单其他部件未完成而等待。</p><p>安排某一台设备持续加工，并不一定能让订单更快完成，可能导致堵塞或瓶颈。APS 需要协调整条生产流程，包括加工、等待、搬运和齐套。</p><div class="objective"><p>平均订单流动时间 = 所有订单的（成品完工时间 − 订单到达时间）之和 ÷ 订单数</p></div><p>订单等待批处理、等待实际投放、等待加工、等待搬运及等待齐套，都计入目标。订单到达时间由输入给定，实际进线时间由生产条件和调度安排决定。</p><p class="note">完整比较以全部订单可完成为前提。出现未完工或死锁时，要同时报告完工数、未完工数和等待关系；只计算已完工订单的平均值，不能证明方案更优。设备利用率、末单完工时间和在制数量是辅助指标。</p><h3>先分清这些概念</h3><div class="table-wrap"><table class=""><thead><tr><th scope="col">概念</th><th scope="col">含义</th><th scope="col">例子</th></tr></thead><tbody><tr><td>参数</td><td>运行前给定的生产条件。</td><td>有多少工位、多少库位、每段加工多久。调整这些数值属于场景配置或资源方案对比。</td></tr><tr><td>决策</td><td>在合法选择中，需要决定的具体安排。</td><td>这件排在谁前面、分给哪个工位、何时开工或搬运。</td></tr><tr><td>约束</td><td>任何可执行安排都必须满足的条件。</td><td>一个工位同一时段不能加工两件；占用与预留不能超过缓冲容量。</td></tr><tr><td>当前规则</td><td>系统从多个合法选择中选取一个的现行方法。</td><td>较早到达的订单优先。它能确定行动，但本身不等于已经求得全线最优方案。</td></tr><tr><td>求解器</td><td>把决策和约束写成数学模型，再搜索可行或更优安排的工具。</td><td>MILP 或 CP-SAT 可以表示工序先后和工位不重叠；限时找到可行解与证明最优是不同结果。</td></tr><tr><td>元启发式</td><td>通过反复调整候选方案寻找改进的方法。</td><td>遗传算法、禁忌搜索或大邻域搜索，需要能把每个候选方案解码成合法的加工和搬运安排。</td></tr><tr><td>其他候选算法</td><td>针对问题结构采用的分解、动态规划、滚动优化或学习策略。</td><td>可将求解器用于局部重排，也可学习派工策略；采用这些方法仍需检查可行性和效果。</td></tr></tbody></table></div>
+    </section>
+
+    <section class="report-section" id="decisions" aria-labelledby="decisions-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">02</span><h2 id="decisions-title">六个需要协调的决策</h2></div>
+      <p class="section-intro">先看每个决策回答什么问题，再逐项查看参数、约束、当前规则，以及交给算法求解时的难点。</p>
+      <div class="table-wrap"><table class="overview-table"><thead><tr><th scope="col">编号</th><th scope="col">决策</th><th scope="col">需要回答的业务问题</th></tr></thead><tbody><tr><td><a class="decision-tag" href="#decisions" data-go-decision="D1">D1</a></td><td>批处理排批</td><td>哪些订单放在同一盘？分给哪台设备？什么时候开始？</td></tr><tr><td><a class="decision-tag" href="#decisions" data-go-decision="D2">D2</a></td><td>下游投放</td><td>S01 完成后，哪件先进入后六岛？什么时候放行？</td></tr><tr><td><a class="decision-tag" href="#decisions" data-go-decision="D3">D3</a></td><td>加工排序与开工</td><td>多件都能加工时先做哪件？满足条件后立即做，还是等待？</td></tr><tr><td><a class="decision-tag" href="#decisions" data-go-decision="D4">D4</a></td><td>工位分配</td><td>指定岛有多个合格工位时，这件分给哪个？</td></tr><tr><td><a class="decision-tag" href="#decisions" data-go-decision="D5">D5</a></td><td>搬运安排</td><td>多件等待搬运时先运哪件？什么时候取件、送达？</td></tr><tr><td><a class="decision-tag" href="#decisions" data-go-decision="D6">D6</a></td><td>齐套与合装安排</td><td>哪个订单已齐套？多套都齐套时先合装哪套？</td></tr></tbody></table></div>
+      <div class="term-legend" aria-label="阅读说明">
+        <span><strong>参数</strong>本次运行前给定的条件</span>
+        <span><strong>约束</strong>排程必须满足的要求</span>
+        <span><strong>规则</strong>当前怎样从可行选择中挑选</span>
+        <span><strong>算法难点</strong>进一步优化需要解决的问题</span>
+      </div>
+      <p class="scope-note">使用求解器、元启发式或学习方法，替换的是“怎样从可行选择中选”的策略。工艺先后、容量和同单齐套等约束仍须满足；找到可行解与证明最优，也需要分别说明。</p>
+      <div class="decision-tabs" role="tablist" aria-label="选择决策说明" aria-orientation="horizontal">
+        <button type="button" role="tab" id="tab-D1" aria-controls="panel-D1" aria-selected="true" tabindex="0" data-decision-tab="D1"><span>D1</span> S01 排批</button>
+        <button type="button" role="tab" id="tab-D2" aria-controls="panel-D2" aria-selected="false" tabindex="-1" data-decision-tab="D2"><span>D2</span> 下游投放</button>
+        <button type="button" role="tab" id="tab-D3" aria-controls="panel-D3" aria-selected="false" tabindex="-1" data-decision-tab="D3"><span>D3</span> 排序与开工</button>
+        <button type="button" role="tab" id="tab-D4" aria-controls="panel-D4" aria-selected="false" tabindex="-1" data-decision-tab="D4"><span>D4</span> 工位分配</button>
+        <button type="button" role="tab" id="tab-D5" aria-controls="panel-D5" aria-selected="false" tabindex="-1" data-decision-tab="D5"><span>D5</span> 搬运安排</button>
+        <button type="button" role="tab" id="tab-D6" aria-controls="panel-D6" aria-selected="false" tabindex="-1" data-decision-tab="D6"><span>D6</span> 合装安排</button>
+      </div>
+      <section class="decision-panel" data-decision="D1" id="panel-D1"><h3>D1 · 批处理排批</h3><p>哪些订单放在同一盘？分给哪台设备？什么时候开始？</p><dl class="decision-fields"><dt>给定参数</dt><dd><ul><li>已到达订单及其到达时刻；同单 A、B、C 的绑定关系。</li><li>S01 设备数量、允许的整单装盘组合、各批量对应的整盘工时。</li><li>机外准备、机外后处理、设备换盘时间，以及未满盘时的等单时间。</li></ul></dd><dt>必须满足的约束</dt><dd><ul><li>订单对应的生产作业在订单到达后才能开始；同一订单三件作为整单进入同一批，不能在当前模型中拆到不同盘。</li><li>装盘组合须在允许表内；一台设备同一时段加工一盘，并满足准备和换盘的时间衔接。</li><li>准备、后处理和待运共用 S01 缓冲。后处理不占设备加工位，但占用相应缓冲。</li></ul></dd><dt>当前决策规则</dt><dd><ul><li>按订单到达顺序取整单，优先选择当前能装下的最大允许组合，并选择可安排准备的设备；同等条件下按设备编号选择。</li><li>达到最大盘量就安排；未满盘时采用立即启动或限时等单。等单截止计时是共享且不因新订单到达而延长的。</li><li>最后一单到达后，已承诺批次保持不变，对剩余待排订单使用局部动态规划安排收尾。</li></ul></dd></dl><h4>如果改用算法，难点在哪里？</h4><div class="table-wrap"><table class="algorithm-table"><thead><tr><th scope="col">候选方法</th><th scope="col">替换当前规则时的具体难点</th></tr></thead><tbody><tr><td>求解器</td><td><ul><li>需要同时决定批次成员、批量、设备和起止时间；整盘工时随批量查表，不能简单把单件时间相加。</li><li>若优化整线，还须把批次完成后的三件到达、下游拥堵和齐套等待接进同一个目标；仅优化 S01 结束时间不足以代表订单最终完工。</li></ul></td></tr><tr><td>元启发式</td><td><ul><li>交换订单或拆并批次时，要始终保持整单、合法装盘和设备不重叠；候选方案需要可行解码或修复。</li><li>评价一次候选排批需要观察后六岛的结果，较大的批次可能节约设备时间，也可能集中释放大量在制品。</li></ul></td></tr><tr><td>其他算法</td><td><ul><li>动态规划适合结构明确、状态可压缩的局部排批；加上全线缓冲、回流和并行支线后，状态需要表达的信息显著增加。</li><li>滚动或学习策略需要处理后续订单未知及“现在开打还是继续等”的权衡，并保护已经准备或正在加工的批次。</li></ul></td></tr></tbody></table></div><p class="boundary-note">S01 的收尾最优仅针对该局部问题与已固定的工作，不是全线最优保证。等单时间也不是所有订单总排队时间的上限；现版 S01 缓冲不足时会报告不可行，不会自动反向重排批次。</p></section><section class="decision-panel" data-decision="D2" id="panel-D2" hidden><h3>D2 · 下游投放</h3><p>S01 完成后，哪件先进入后六岛？什么时候放行？</p><dl class="decision-fields"><dt>给定参数</dt><dd><ul><li>S01 后处理完成且等待发运的部件、订单到达顺序和首个目的岛。</li><li>目的岛的实际占用、在途预留、回存预留及其他已启用预留。</li><li>S01 到首个岛的运输时间，以及允许采用的投放或在制控制策略。</li></ul></dd><dt>必须满足的约束</dt><dd><ul><li>部件必须完成 S01 后处理，且目标岛能够按库位计量规则合法接收。</li><li>发运前先锁定目标接收位；S01 的同单待运格在最后一件被取走后才释放。</li><li>投放等待计入原始订单到达到成品完工的总时间，不能通过推迟实际进线来改写订单到达时刻。</li></ul></dd><dt>当前决策规则</dt><dd><ul><li>S02 有可接收空间时，从 S01 待运件中按较早订单、进入缓冲的先后及同刻 A→B→C 顺序选择一件。</li><li>先预留 S02 接收位，再取件发运；条件不满足时留在 S01 等待。</li><li>当前调度先检查完工回存、开工和后六岛内部转运，再检查 S01 出料发运。</li></ul></dd></dl><h4>如果改用算法，难点在哪里？</h4><div class="table-wrap"><table class="algorithm-table"><thead><tr><th scope="col">候选方法</th><th scope="col">替换当前规则时的具体难点</th></tr></thead><tbody><tr><td>求解器</td><td><ul><li>投放时刻会改变后续各岛的占用区间。有限缓冲必须随时间计入实占与预留，不能只限制总投放数量。</li><li>当前一步有空位不等于后续不会形成循环等待；全线可执行性需要表达更长的加工、搬运与回存关系。</li></ul></td></tr><tr><td>元启发式</td><td><ul><li>调整放行顺序或插入等待后，需要重新评价堵塞和齐套；对未完成场景不能只用已完工订单均值作为评分。</li><li>候选投放方案需要遵守订单到达、后处理完成和目的位接收条件，并在不可行时有明确的修复或拒绝方式。</li></ul></td></tr><tr><td>其他算法</td><td><ul><li>在制数量上限或令牌控制比较易解释，但合适上限会随路线、资源配置和到单节奏改变。</li><li>滚动优化或学习策略需要观察在途、加工中与未齐套状态；仅看当前空格数容易遗漏未来回流占用。</li></ul></td></tr></tbody></table></div><p class="boundary-note">投放是“实际进线”的决定，订单到达是输入。当前尚未进行全局在制上限优化，也未接入覆盖所有闭环的统一死锁避免算法。</p></section><section class="decision-panel" data-decision="D3" id="panel-D3" hidden><h3>D3 · 加工排序与开工</h3><p>多件都能加工时先做哪件？满足条件后立即做，还是等待？</p><dl class="decision-fields"><dt>给定参数</dt><dd><ul><li>各岛候选加工件、订单到达顺序、进入当前缓冲的时刻。</li><li>下一加工段、加工时间、工位可用状态和回存位规则。</li><li>S05 的已齐套订单，以及与其共用加工位的其他可加工任务。</li></ul></dd><dt>必须满足的约束</dt><dd><ul><li>任务已到达本岛、前序完成且轮到本段；合装任务还须同单三件齐套。</li><li>必须有合格空闲工位，加工期间工位不能同时处理另一件。</li><li>同岛相邻工序按当前模型连续完成，不在中途换件；开启回存预留时，需保留相应回存空间。</li></ul></dd><dt>当前决策规则</dt><dd><ul><li>从当前可开工的任务中选较早到达的订单，同单按进入缓冲的先后排序，完全同时按 A→B→C 区分。</li><li>满足开工条件就安排加工，目前没有为了未来任务而主动留空工位的优化。</li><li>当前优先规则按订单及队列状态选取，不等于已经最小化全线平均订单流动时间。</li></ul></dd></dl><h4>如果改用算法，难点在哪里？</h4><div class="table-wrap"><table class="algorithm-table"><thead><tr><th scope="col">候选方法</th><th scope="col">替换当前规则时的具体难点</th></tr></thead><tbody><tr><td>求解器</td><td><ul><li>需要选择同一资源上任务的先后，并将工艺先后、工位互斥、回流访问及缓冲占用一起衔接。</li><li>局部提前加工可能挤占其他订单或齐套所需资源。若允许主动等待，还要决定何时留空以及何时恢复加工。</li></ul></td></tr><tr><td>元启发式</td><td><ul><li>交换队列任务不能破坏各工件工艺先后；同一岛的多次回访应视为不同加工段，避免误合并或遗漏。</li><li>解码器需要把排序转换成包含等待与资源检查的实际时刻，不能仅把一个排列当成可执行排程。</li></ul></td></tr><tr><td>其他算法</td><td><ul><li>动态优先级可以综合工序剩余量、等待和齐套情况，但各指标权重需要通过一致场景验证。</li><li>学习策略需要覆盖不同负荷、资源数和回流状态，且每个动作都必须经过可开工检查；训练得分高不自动保证合法或最优。</li></ul></td></tr></tbody></table></div><p class="boundary-note">后六岛的换型时间当前按零计。若未来加入顺序相关换型，需要补充“该工位上一件类型”、初始类型和换型时间表，再重新定义排序成本。</p></section><section class="decision-panel" data-decision="D4" id="panel-D4" hidden><h3>D4 · 工位分配</h3><p>指定岛有多个合格工位时，这件分给哪个？</p><dl class="decision-fields"><dt>给定参数</dt><dd><ul><li>工序指定的工艺岛、岛内工位数量、各工位当前可用状态。</li><li>当前同岛工位按同质处理，使用相同加工段时间。</li><li>若将来扩展异质工位，则需新增能力资格、不同速度、工装条件及初始状态等数据。</li></ul></dd><dt>必须满足的约束</dt><dd><ul><li>只能分配到具备该段工艺能力的工位；当前路线已指定岛，不允许任意跨岛代做。</li><li>同一任务只占一个工位；一个工位同一时段只占用一次，且工位编号必须在配置范围内。</li><li>工位分配须与开工时间、前序完成和回存要求同时成立。</li></ul></dd><dt>当前决策规则</dt><dd><ul><li>在指定岛中选择编号最小的空闲工位。</li><li>多个工位同质且同时空闲时，单纯交换工位编号通常不改变加工用时；当前主要安排空间仍在任务排序与开工时间。</li></ul></dd></dl><h4>如果改用算法，难点在哪里？</h4><div class="table-wrap"><table class="algorithm-table"><thead><tr><th scope="col">候选方法</th><th scope="col">替换当前规则时的具体难点</th></tr></thead><tbody><tr><td>求解器</td><td><ul><li>需要把“分配到某工位”与相应起止区间绑定，并防止同一工位任务重叠。</li><li>同质工位会产生很多仅编号不同的等价方案，可利用对称性减少重复搜索；若未来工位异质，才需同时权衡资格、速度和其他条件。</li></ul></td></tr><tr><td>元启发式</td><td><ul><li>当前只交换同质空闲工位编号，改进空间有限；搜索应与排序和开工联合设计，避免反复评价等价方案。</li><li>未来引入异质能力时，工位变更需要修复资格与占用冲突，不能通过任意改编号生成合法解。</li></ul></td></tr><tr><td>其他算法</td><td><ul><li>局部匹配适合在某个时点给可加工任务分配可用工位，但不天然保证后续缓冲和回流安排更好。</li><li>若使用学习策略，应让动作只包含合格可用工位；跨岛柔性须先由实际能力数据确认后才可加入。</li></ul></td></tr></tbody></table></div><p class="boundary-note">现版有岛内并行工位的选择，没有建立跨岛替代加工，也没有对工位速度或工装差异进行优化。增加工位数量属于场景配置，分配哪个工位才是运行决策。</p></section><section class="decision-panel" data-decision="D5" id="panel-D5" hidden><h3>D5 · 搬运安排</h3><p>多件等待搬运时先运哪件？什么时候取件、送达？</p><dl class="decision-fields"><dt>给定参数</dt><dd><ul><li>待运件、来源岛和固定的下一目的岛，以及订单和缓冲队列顺序。</li><li>各岛间含取放时间的运输矩阵；来源实占和目的接收位状态。</li><li>当前 AGV 数量不受限、每趟一件。若扩展有限车队，须新增车辆位置、可用时刻和适用载荷等数据。</li></ul></dd><dt>必须满足的约束</dt><dd><ul><li>前序已完成，工件在可取位置；后六岛当前先回本岛缓冲，再发起跨岛搬运。</li><li>先锁定目的岛可接收空间，再从来源取件；运输结束后才进入目的缓冲并允许后续加工。</li><li>同单已有共享齐套位时可按规则并入该位；不能把“没有新的普通空格”等同于“必定不能接收”。</li></ul></dd><dt>当前决策规则</dt><dd><ul><li>在可合法发运的后六岛待运件中，按较早订单、进入缓冲先后及同刻部件顺序选择。</li><li>先预留目的位，再取件运输。每次行动后重新检查回存、开工和转运等可执行动作。</li><li>不同 AGV 搬运可并行。现版只记录任务和运输时间，不给任务分配具体车辆，也不安排实际道路上的路线或避碰。</li></ul></dd></dl><h4>如果改用算法，难点在哪里？</h4><div class="table-wrap"><table class="algorithm-table"><thead><tr><th scope="col">候选方法</th><th scope="col">替换当前规则时的具体难点</th></tr></thead><tbody><tr><td>求解器</td><td><ul><li>现阶段需要衔接取件、送达、加工和目的库位占用。若引入有限车队，还要决定分车与每辆车的任务顺序，并计入空驶衔接。</li><li>加工和运输相互等待时，先独立排好加工再派车可能无法按时执行；道路冲突和电量属于额外约束，不能从时间矩阵中自动得到。</li></ul></td></tr><tr><td>元启发式</td><td><ul><li>有限车队下需共同编码任务分车、顺序和取送时点；调整搬运可能改变加工开工与库位占用。</li><li>解码必须保留先取后送和目的预留，不能用允许溢出或瞬间换位的评分方式掩盖不可行。</li></ul></td></tr><tr><td>其他算法</td><td><ul><li>滚动匹配能快速分派近期任务，但须评价对下游加工及齐套的影响，并与已执行运输保持一致。</li><li>学习派车策略须首先建立有限车辆状态和合法动作；当前无限 AGV 模型不能用于证明有限车队、电量或道路控制可行。</li></ul></td></tr></tbody></table></div><p class="boundary-note">现版“AGV 随取随用”是简化假设，并非已完成车辆优化。两岛成对换位是可选的停滞处理规则，也不是一般多岛循环等待的完整解法。</p></section><section class="decision-panel" data-decision="D6" id="panel-D6" hidden><h3>D6 · 齐套与合装安排</h3><p>哪个订单已齐套？多套都齐套时先合装哪套？</p><dl class="decision-fields"><dt>给定参数</dt><dd><ul><li>订单与 A、B、C 的固定绑定关系，以及三件各自在 S05 的实际到达状态。</li><li>S05 工位、缓冲和共享齐套位配置；总成 P 的后续加工路线。</li><li>同一 S05 工位上其他可加工任务及当前订单优先规则。</li></ul></dd><dt>必须满足的约束</dt><dd><ul><li>同一订单 A、B、C 的各自支线全部完成并到达 S05 后，才能开始合装；不同订单不能混配。</li><li>开始合装还需可用工位，并满足已启用的回存与预留规则；三件合装后转为一件总成 P。</li><li>启用齐套共享时，同单三件共用一个齐套位。该规则改变计格方式，不允许任意多单共用一个格。</li></ul></dd><dt>当前决策规则</dt><dd><ul><li>未齐套订单留在自己的齐套位等待，不阻止其他已齐套订单被选择。</li><li>在可开工任务中优先较早到达的订单；已齐套订单仍与 S05 其他可加工任务共享工位。</li><li>合装后，P 按其指定路线继续流转；末段完工后直接出库。</li></ul></dd></dl><h4>如果改用算法，难点在哪里？</h4><div class="table-wrap"><table class="algorithm-table"><thead><tr><th scope="col">候选方法</th><th scope="col">替换当前规则时的具体难点</th></tr></thead><tbody><tr><td>求解器</td><td><ul><li>合装开始时刻必须晚于三条支线完成并送达的时刻，因此需要同步多条并行路径，而不是只优化某一件的提前完成。</li><li>若将齐套作为优化目标，还要决定怎样协调三件的上游加工和搬运，并同时处理 S05 原有任务与总成后续回流。</li></ul></td></tr><tr><td>元启发式</td><td><ul><li>单独提前一条支线可能只增加等待。邻域调整应保留同单绑定，并能联合调整其余两件和合装次序。</li><li>必须按完整订单完工评价；把三件的局部完成时间简单相加，不能准确代表总成出库目标。</li></ul></td></tr><tr><td>其他算法</td><td><ul><li>针对缺件的动态优先级可以引导补齐，但须平衡较早订单、资源占用和其他可完成订单。</li><li>滚动或学习策略需要表达“还缺哪件、何时能到、总成还需哪些资源”，并用齐套与工位检查限制动作。</li></ul></td></tr></tbody></table></div><p class="boundary-note">当前按已齐套状态选单，没有全局优化三条支线的同步到达，也不进行跨订单零件匹配。</p></section>
+      <noscript><style>.decision-tabs{display:none!important}#decisions [data-decision][hidden]{display:block!important}.print-page{display:none!important}</style><p class="note">当前浏览器未启用 JavaScript，六个决策说明已全部展开。</p></noscript>
+    </section>
+
+    <section class="report-section" id="resources" aria-labelledby="resources-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">03</span><h2 id="resources-title">涉及哪些资源，柔性是什么意思</h2></div>
+      <p class="lead">柔性是完成同一任务时，存在多个符合工艺要求的合法选择。可选择不等于任何资源都能做任何任务。</p><p>某段已指定在 S02 加工，且 S02 有两个同样合格的空闲工位时，可以在两者之间选择。能否改到另一个岛，需要另外提供实际能力依据。</p><div class="table-wrap"><table class="resource-table"><thead><tr><th scope="col">资源</th><th scope="col">作用</th><th scope="col">柔性与选择空间</th><th scope="col">当前建模范围</th></tr></thead><tbody><tr><td>S01 批处理设备</td><td>一台设备同一时段加工一盘</td><td>多台等效设备之间可分配批次，批量和开始时机也有选择空间</td><td>当前已建模</td></tr><tr><td>S02—S07 加工位</td><td>每个工位同时处理一件零件或总成</td><td>指定岛内有多个合格工位时可选；当前同岛工位按同质处理</td><td>岛内可选；跨岛替代未建模</td></tr><tr><td>各岛缓冲与齐套位</td><td>存放待加工、待运及等待齐套的工件</td><td>按配置分配和共享存储空间，容量始终受限</td><td>当前已建模；属于空间组织规则</td></tr><tr><td>AGV</td><td>单件跨岛搬运</td><td>当前安排发运任务与时机；没有具体车辆之间的分配选择</td><td>数量暂不受限；有限车队待扩展</td></tr><tr><td>人员、工装和道路</td><td>现场的辅助作业与物流保障</td><td>需依据实际能力、数量和可用时段确认</td><td>当前未独立建立竞争与占用约束</td></tr></tbody></table></div><ul><li>工艺回流是按给定路线再次访问某岛，本身不等于可以自由改变加工路线。</li><li>同单共享齐套位是计格规则，不代表缓冲容量可以无限增加。</li><li>有多少设备和库位是运行前的场景参数；给任务分配哪个资源、何时使用才是运行决策。</li></ul>
+    </section>
+
+    <section class="report-section" id="inputs-outputs" aria-labelledby="inputs-outputs-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">04</span><h2 id="inputs-outputs-title">系统的输入与输出</h2></div>
+      <div class="io-columns"><section><h3>输入：运行前需要给什么？</h3><dl class="definition-list"><dt>订单</dt><dd><ul><li>整线订单数量、固定到达间隔，以及同单 A/B/C 的绑定关系。</li></ul></dd><dt>工艺</dt><dd><ul><li>A/B/C/P 的加工段顺序、指定工艺岛和每段时间；同岛相邻工序按段连续完成。</li></ul></dd><dt>加工与存储资源</dt><dd><ul><li>S01 设备数、后六岛工位数及各岛缓冲容量。</li></ul></dd><dt>批处理</dt><dd><ul><li>允许的整单装盘组合、整盘工时表、准备／后处理／换盘时间和等单时间。</li></ul></dd><dt>运输</dt><dd><ul><li>各岛之间含取放时间的运输矩阵，以及 S01 至首岛的运输时间。</li></ul></dd><dt>策略</dt><dd><ul><li>立即或限时等单，以及回存预留、S05 齐套共享、总成回流预留和两岛换位开关。</li></ul></dd><dt>初始状态</dt><dd><ul><li>当前固定从空系统开始，没有初始在制品，工位和库位从空闲状态开始。</li></ul></dd></dl></section><section><h3>输出：安排与评价结果是什么？</h3><dl class="definition-list"><dt>业务上应交付的生产安排</dt><dd><ul><li>批次成员及设备与时间、任务的工位及起止时间、每次搬运的起终点与取送时点、同单合装安排。</li></ul><p class="muted">当前能生成批次安排和仿真轨迹；尚未形成面向现场系统的全线执行接口。</p></dd><dt>当前可查看的方案评价</dt><dd><ul><li>逐单到达、完工与流动时间，平均流动时间、完工数量、资源峰值、库位变化、搬运回放，以及停滞时的占用和等待关系。</li></ul><p class="muted">当前已提供；结果取决于输入场景与启用规则。</p></dd><dt>优化层后续应比较的结果</dt><dd><ul><li>在相同订单、资源、工艺和时间口径下，比较候选方案的可行性、平均流动时间及求解耗时。</li></ul><p class="muted">候选方向；当前没有全线最优性证明或直接下发设备的功能。</p></dd></dl></section></div>
+    </section>
+
+    <section class="report-section" id="assumptions-constraints" aria-labelledby="assumptions-constraints-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">05</span><h2 id="assumptions-constraints-title">假设条件与生产约束</h2></div>
+      <p class="section-intro">假设说明模型暂时怎样描述生产；约束说明一份安排要能执行，必须满足哪些要求。</p>
+      <h3>当前采用的假设</h3>
+      <ol class="assumption-list"><li>一单对应一件最终产品，固定包含 A/B/C，同单绑定合装；合装后按一件 P 流转。</li><li>整线每次从空系统开始，首单在零时刻到达，后续订单按输入的固定间隔产生。</li><li>订单先经过 S01；当前采用整单组批，同单三件不拆到不同盘。</li><li>每次运行中，工位数、缓冲容量、加工时间和运输时间保持给定值。参数修改在下一次运行生效。</li><li>物料充足，不考虑设备故障、返工、报废；人员和工装未作为独立竞争资源，也未设置班次。</li><li>AGV 随取随用，每趟一件；不考虑数量、电量、充电、空驶衔接、道路拥堵和避碰。</li><li>后六岛换型按零处理；S01 准备、后处理和换盘时间使用输入值。</li><li>暂不设置交期硬约束，主要评价原始订单到达到最终完工的平均时间。</li></ol>
+      <h3>任何可执行方案都要满足的约束</h3>
+      <ol class="constraint-list"><li>工艺先后：前序完成、工件送达且轮到本段后才能加工；订单对应的生产作业不能在订单到达前开始。</li><li>能力与唯一分配：任务在指定且合格的资源执行，一个任务不能同时占据两个位置或两个工位。</li><li>加工互斥：后段一个工位同一时段处理一件，S01 一台设备同一时段加工一盘。</li><li>缓冲容量：实际占用与各类有效预留之和不超过容量；共享位按订单规则计数，不能重复忽略占用。</li><li>运输衔接：前序完成且工件可取，发运前目的位已合法预留；运输结束后才能在目的岛加工。</li><li>同单齐套：同单 A/B/C 全部完成各自支线并到达 S05 后才能合装，禁止不同订单混配。</li><li>连续与不可中断：同岛相邻工序在原工位连续完成，任务不在中途随意换件。</li><li>身份与数量一致：工件不丢失、不重复加工；同单三件合装后转换为一件总成，最终只记录一次成品完工。</li><li>启用的策略要求：回存预留、齐套共享、回流预留等按本轮开关执行。策略可配置，实际容量与工位互斥检查始终需要满足。</li></ol>
+    </section>
+
+    <section class="report-section" id="flow" aria-labelledby="flow-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">06</span><h2 id="flow-title">订单和工件怎样经过系统</h2></div>
+      <p class="section-intro">入口首先是订单。S01 结束后形成 A、B、C 三件，按订单齐套合装后再成为一件总成 P。流程中的 D1—D6 可以点击查看对应决策。</p>
+      <h3>一单的整体流程</h3>
+      <p>系统首先接收订单；S01 完成后形成同单 A/B/C 三条零件支线，合装后形成总成 P。图中的 D1—D6 对应前面的六个决策。</p><div class="process-flow" aria-label="订单主流程"><div class="process-step"><strong>订单到达</strong><p>记录原始到达时刻，后续所有等待都计入订单总用时。</p><p></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><strong>S01 排批</strong><p>选择同盘订单、设备及开始时机。</p><p><a class="decision-tag" href="#decisions" data-go-decision="D1">D1</a></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><strong>机外准备 → S01 加工 → 机外后处理</strong><p>设备与共享缓冲分别按阶段占用。后处理完成后，部件才进入待发运状态。</p><p></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-parallel"><strong>A／B／C 分支并行加工</strong><p>同单三件分别沿自己的给定路线运行，执行下方单件循环。</p><div class="process-branches"><div class="process-step"><strong>部件 A</strong><p>按自身路线加工与搬运，完成后送到 S05 等待同单齐套。</p></div><div class="process-step"><strong>部件 B</strong><p>按自身路线加工与搬运，完成后送到 S05 等待同单齐套。</p></div><div class="process-step"><strong>部件 C</strong><p>按自身路线加工与搬运，完成后送到 S05 等待同单齐套。</p></div></div><p><a class="decision-tag" href="#decisions" data-go-decision="D2">D2</a> <a class="decision-tag" href="#decisions" data-go-decision="D3">D3</a> <a class="decision-tag" href="#decisions" data-go-decision="D4">D4</a> <a class="decision-tag" href="#decisions" data-go-decision="D5">D5</a></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><strong>送达 S05，按订单等齐套</strong><p>同单三件全部到达后才成为可合装任务。未齐套订单单独等待，不挡住其他已齐套订单。</p><p><a class="decision-tag" href="#decisions" data-go-decision="D6">D6</a></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><strong>合装为总成 P</strong><p>从可开工任务中选择，分配 S05 工位并满足本轮预留要求。</p><p><a class="decision-tag" href="#decisions" data-go-decision="D3">D3</a> <a class="decision-tag" href="#decisions" data-go-decision="D4">D4</a> <a class="decision-tag" href="#decisions" data-go-decision="D6">D6</a></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><strong>P 继续后续加工与回流</strong><p>按 P 的指定路线重复加工、回存和跨岛搬运。</p><p><a class="decision-tag" href="#decisions" data-go-decision="D3">D3</a> <a class="decision-tag" href="#decisions" data-go-decision="D4">D4</a> <a class="decision-tag" href="#decisions" data-go-decision="D5">D5</a></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><strong>末段完工，成品出库</strong><p>记录订单完工时刻，计算完工减原始到达的流动时间。</p><p></p></div></div>
+      <h3>放大看一件的加工与搬运循环</h3>
+      <div class="process-flow" aria-label="单件加工与搬运循环"><div class="process-step"><strong>从 S01 待运区放行</strong><p>D2 判断何时实际进入后六岛；D5 安排这一件的发运。</p><p><a class="decision-tag" href="#decisions" data-go-decision="D2">D2</a> <a class="decision-tag" href="#decisions" data-go-decision="D5">D5</a></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><strong>检查并预留目的接收位</strong><p>目的岛能合法接收才取件。已有同单共享齐套位时，可按规则并入；不满足时留在来源等待。</p><p><a class="decision-tag" href="#decisions" data-go-decision="D5">D5</a></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><strong>取件、运输、送达缓冲</strong><p>按运输矩阵耗时；送达时目的入站预留转换为实际占用。</p><p><a class="decision-tag" href="#decisions" data-go-decision="D5">D5</a></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><strong>选任务、选工位、确定开工</strong><p>D3 选可加工件及开工时机，D4 分配合格空闲工位；开启回存预留时，为完工回存保留相应空间。</p><p><a class="decision-tag" href="#decisions" data-go-decision="D3">D3</a> <a class="decision-tag" href="#decisions" data-go-decision="D4">D4</a></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><strong>连续加工本岛相邻工序</strong><p>占用加工位直至这一连续加工段结束，期间不随意中断换件。</p><p></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><strong>完工回存并释放工位</strong><p>需要后续流转的工件先回本岛缓冲。未预留且无可接收空间时，可能暂留加工位；P 最终段直接出库。</p><p></p></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><strong>进入下一段或等齐套</strong><p>有下一目的岛时返回 D5；零件支线全部完成后送 S05 齐套，P 全部完成后结束。</p><p><a class="decision-tag" href="#decisions" data-go-decision="D5">D5</a> <a class="decision-tag" href="#decisions" data-go-decision="D6">D6</a></p></div></div><ul><li>支线途中经过 S05 时只做该段加工；三条支线全部完成并送达 S05 后，才进入最终齐套合装。</li><li>S01 同单按一套计格，机外准备、后处理及待运共用缓冲；待运阶段最后一件被取走后才释放该套的格。</li><li>S05 启用齐套共享时，同单三件共用一个齐套位；其他普通缓冲通常一件零件或一件总成占一格。</li><li>工位空闲只是开工条件之一，前序、到达、齐套、资源能力和启用的预留要求也需要同时检查。</li></ul>
+    </section>
+
+    <section class="report-section" id="routes" aria-labelledby="routes-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">07</span><h2 id="routes-title">完整工艺路线</h2></div>
+      <p class="section-intro">工艺岛与部件用符号表示。每个节点是一段同岛连续加工，时间为整段秒数；跨岛运输与等待另计。</p>
+      <p>下图采用模型基准路线及加工时间；场景修改以仿真页为准。每个节点代表连续同岛加工段，时间是整段总时间，搬运和等待另计。</p><div class="route-legend"><span style="--route-color:#2883a7"><i aria-hidden="true"></i>S01</span><span style="--route-color:#137b72"><i aria-hidden="true"></i>S02</span><span style="--route-color:#a14a24"><i aria-hidden="true"></i>S03</span><span style="--route-color:#6b54a6"><i aria-hidden="true"></i>S04</span><span style="--route-color:#315d99"><i aria-hidden="true"></i>S05</span><span style="--route-color:#a14e79"><i aria-hidden="true"></i>S06</span><span style="--route-color:#5c7539"><i aria-hidden="true"></i>S07</span></div><p class="muted">各加工节点的排序与开工对应 <a class="decision-tag" href="#decisions" data-go-decision="D3">D3</a>，工位分配对应 <a class="decision-tag" href="#decisions" data-go-decision="D4">D4</a>；跨岛箭头对应 <a class="decision-tag" href="#decisions" data-go-decision="D5">D5</a>。</p><div class="route-start">订单到达 → S01 批处理与机外后处理 <a class="decision-tag" href="#decisions" data-go-decision="D1">D1</a> → 下游投放 <a class="decision-tag" href="#decisions" data-go-decision="D2">D2</a></div><div class="route-three"><div class="route-branch"><h3>部件 A<small>14 个加工段 · 纯加工 2460 秒</small></h3><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">45 秒</span></div><small>A01</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#315d99;--route-light:#e7eef9"><div><strong>S05</strong><span class="route-time">30 秒</span></div><small>A02</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14e79;--route-light:#f7e8f0"><div><strong>S06</strong><span class="route-time">135 秒</span></div><small>A03</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">105 秒</span></div><small>A04</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#6b54a6;--route-light:#eee9f8"><div><strong>S04</strong><span class="route-time">1800 秒</span></div><small>A05</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14e79;--route-light:#f7e8f0"><div><strong>S06</strong><span class="route-time">30 秒</span></div><small>A06</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14a24;--route-light:#fbede4"><div><strong>S03</strong><span class="route-time">15 秒</span></div><small>A07</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14e79;--route-light:#f7e8f0"><div><strong>S06</strong><span class="route-time">15 秒</span></div><small>A08</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">30 秒</span></div><small>A09</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14e79;--route-light:#f7e8f0"><div><strong>S06</strong><span class="route-time">30 秒</span></div><small>A10</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">90 秒</span></div><small>A11</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14e79;--route-light:#f7e8f0"><div><strong>S06</strong><span class="route-time">30 秒</span></div><small>A12</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">60 秒</span></div><small>A13</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14a24;--route-light:#fbede4"><div><strong>S03</strong><span class="route-time">45 秒</span></div><small>A14</small></div><span class="route-branch-tail">↓ 送往 S05 齐套</span></div><div class="route-branch"><h3>部件 B<small>12 个加工段 · 纯加工 2385 秒</small></h3><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">45 秒</span></div><small>B01</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#315d99;--route-light:#e7eef9"><div><strong>S05</strong><span class="route-time">30 秒</span></div><small>B02</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14e79;--route-light:#f7e8f0"><div><strong>S06</strong><span class="route-time">90 秒</span></div><small>B03</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">105 秒</span></div><small>B04</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#6b54a6;--route-light:#eee9f8"><div><strong>S04</strong><span class="route-time">1800 秒</span></div><small>B05</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14e79;--route-light:#f7e8f0"><div><strong>S06</strong><span class="route-time">30 秒</span></div><small>B06</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14a24;--route-light:#fbede4"><div><strong>S03</strong><span class="route-time">15 秒</span></div><small>B07</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14e79;--route-light:#f7e8f0"><div><strong>S06</strong><span class="route-time">45 秒</span></div><small>B08</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">60 秒</span></div><small>B09</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14e79;--route-light:#f7e8f0"><div><strong>S06</strong><span class="route-time">75 秒</span></div><small>B10</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">60 秒</span></div><small>B11</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#a14a24;--route-light:#fbede4"><div><strong>S03</strong><span class="route-time">30 秒</span></div><small>B12</small></div><span class="route-branch-tail">↓ 送往 S05 齐套</span></div><div class="route-branch"><h3>部件 C<small>3 个加工段 · 纯加工 375 秒</small></h3><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">105 秒</span></div><small>C01</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#5c7539;--route-light:#edf2e5"><div><strong>S07</strong><span class="route-time">105 秒</span></div><small>C02</small></div><div class="route-arrow" aria-hidden="true">↓</div><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">165 秒</span></div><small>C03</small></div><span class="route-branch-tail">↓ 送往 S05 齐套</span></div></div><div class="route-join">S05：同一订单的 A、B、C 三件全部到达 → <a class="decision-tag" href="#decisions" data-go-decision="D6">D6</a> 选择合装订单</div><div class="route-assembly"><div class="route-segment" style="--route-color:#315d99;--route-light:#e7eef9"><div><strong>S05</strong><span class="route-time">75 秒</span></div><small>P01</small></div><div class="route-arrow" aria-hidden="true">→</div><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">180 秒</span></div><small>P02</small></div><div class="route-arrow" aria-hidden="true">→</div><div class="route-segment" style="--route-color:#315d99;--route-light:#e7eef9"><div><strong>S05</strong><span class="route-time">60 秒</span></div><small>P03</small></div><div class="route-arrow" aria-hidden="true">→</div><div class="route-segment" style="--route-color:#137b72;--route-light:#e3f2ef"><div><strong>S02</strong><span class="route-time">165 秒</span></div><small>P04</small></div></div><div class="route-end">总成 P 最终工序完工 → 出库并记录完工时刻</div><p class="note">支线途中经过 S05 时只执行该段加工，三条支线全部完成后才齐套合装。工艺回流是既定路线；需要防止的是资源相互占用、互相等待形成的死锁。</p>
+    </section>
+
+    <section class="report-section" id="capabilities" aria-labelledby="capabilities-title">
+      <div class="section-heading"><span class="section-number" aria-hidden="true">08</span><h2 id="capabilities-title">当前系统做到哪里</h2></div>
+      <div class="table-wrap"><table class="capability-table"><thead><tr><th scope="col">状态</th><th scope="col">内容</th><th scope="col">说明</th></tr></thead><tbody><tr><td>当前已有</td><td>规则调度与仿真评价</td><td>给定参数与规则后生成运行轨迹，展示订单时间、资源占用、缓冲变化及停滞关系，支持场景对比。</td></tr><tr><td>当前已有</td><td>S01 局部排批计算</td><td>按整单排批，并对末单到达后的剩余队列进行局部动态规划收尾。局部结果不代表整条生产线最优。</td></tr><tr><td>当前边界</td><td>先排 S01，再接后六岛</td><td>下游拥堵尚未反向优化已经形成的 S01 计划；S01 共享缓冲不足时会报告不可行。</td></tr><tr><td>当前边界</td><td>专项防堵规则</td><td>有入站预留与可配置的回存、齐套、回流、双岛换位规则；尚无覆盖所有多岛闭环的通用无死锁保证。</td></tr><tr><td>待扩展</td><td>全线联合优化</td><td>求解器、元启发式、滚动优化和学习方法都是候选技术路线。需在相同输入下验证可行性、目标效果与计算耗时，再决定采用范围。</td></tr><tr><td>待扩展</td><td>现场执行与反馈</td><td>有限车队、跨岛替代能力、故障与班次、现场在制状态接续，以及向生产和车辆系统下发任务，尚未在当前原型中实现。</td></tr></tbody></table></div><h3>方法参考</h3><p class="muted">算法难点是依据本模型结构的建模分析。以下官方资料解释基础方法，不代表本系统已接入这些求解器或已证明全线最优。</p><ul><li><a href="https://developers.google.com/optimization/scheduling/job_shop" target="_blank" rel="noopener noreferrer">OR-Tools：Job shop scheduling</a>：用于理解工序先后与机器不重叠的基本表达。示例目标是末单完工时间，与本系统平均订单流动时间不同，不能直接替代本系统目标。</li><li><a href="https://developers.google.com/optimization/cp/cp_solver" target="_blank" rel="noopener noreferrer">OR-Tools：CP-SAT solver</a>：用于区分可行解、已证明最优、不可行及限时未确定等求解状态。</li><li><a href="https://developers.google.com/optimization/routing/pickup_delivery" target="_blank" rel="noopener noreferrer">OR-Tools：Pickup and delivery</a>：用于理解取送配对、先取后送及同车等建模要素；并不表示当前原型已经实现有限车队或道路控制。</li></ul>
+    </section>
+  </main>
+
+  <footer class="report-shell report-footer">
+    <p>APS 汇报说明 · 七工艺岛仿真</p>
+    <a href="./index.html" id="footer-simulation-link">返回整体仿真 <span aria-hidden="true">→</span></a>
+  </footer>
+
+  <script>
+    (function () {
+      "use strict";
+      if (location.protocol === "blob:") {
+        document.querySelectorAll("#back-to-simulation, #footer-simulation-link").forEach(function (link) {
+          link.addEventListener("click", function (event) {
+            event.preventDefault();
+            window.close();
+          });
+        });
+      }
+      var tabs = Array.from(document.querySelectorAll("[data-decision-tab]"));
+      var panels = Array.from(document.querySelectorAll("[data-decision]"));
+
+      function selectDecision(id, moveFocus) {
+        var target = tabs.find(function (tab) { return tab.dataset.decisionTab === id; });
+        if (!target) return false;
+        tabs.forEach(function (tab) {
+          var selected = tab === target;
+          tab.setAttribute("aria-selected", String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+        });
+        panels.forEach(function (panel) {
+          panel.hidden = panel.dataset.decision !== id;
+          panel.setAttribute("role", "tabpanel");
+          panel.setAttribute("aria-labelledby", "tab-" + panel.dataset.decision);
+          panel.tabIndex = 0;
+        });
+        if (moveFocus) target.focus();
+        return true;
+      }
+
+      tabs.forEach(function (tab, index) {
+        tab.addEventListener("click", function () {
+          selectDecision(tab.dataset.decisionTab, false);
+        });
+        tab.addEventListener("keydown", function (event) {
+          var next = null;
+          if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
+          if (event.key === "ArrowLeft") next = (index - 1 + tabs.length) % tabs.length;
+          if (event.key === "Home") next = 0;
+          if (event.key === "End") next = tabs.length - 1;
+          if (next === null) return;
+          event.preventDefault();
+          selectDecision(tabs[next].dataset.decisionTab, true);
+        });
+      });
+
+      document.querySelectorAll("[data-go-decision]").forEach(function (link) {
+        link.addEventListener("click", function (event) {
+          if (!selectDecision(link.dataset.goDecision, true)) return;
+          event.preventDefault();
+          document.getElementById("decisions").scrollIntoView({ block: "start" });
+        });
+      });
+
+      document.querySelectorAll("table").forEach(function (table) {
+        if (table.closest(".table-wrap, .scroll")) return;
+        var wrapper = document.createElement("div");
+        wrapper.className = "table-wrap";
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      });
+      document.querySelectorAll(".table-wrap, .scroll").forEach(function (wrapper) {
+        wrapper.tabIndex = 0;
+        wrapper.setAttribute("role", "region");
+        var table = wrapper.querySelector("table");
+        var label = table && (table.getAttribute("aria-label") || (table.caption && table.caption.textContent));
+        wrapper.setAttribute("aria-label", label || "表格，窄屏可左右滚动");
+      });
+
+      var initial = (location.hash.match(/^#(?:panel-|tab-)?(D[1-6])$/) || [])[1];
+      selectDecision(initial || "D1", false);
+      var printButton = document.getElementById("print-report");
+      printButton.addEventListener("click", function () { window.print(); });
+    }());
+  </script>
+</body>
+</html>

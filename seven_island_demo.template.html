@@ -16,6 +16,9 @@ h1{font-size:clamp(24px,3vw,38px);line-height:1.2;letter-spacing:-.035em}
 h2{font-size:21px;line-height:1.35}
 h3{font-size:15px}
 .head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:16px}
+.header-links{display:flex;align-items:center;justify-content:flex-end;gap:8px 12px;flex-wrap:wrap;margin-top:8px}
+.header-links .briefing-action{background:var(--teal);border-color:var(--teal);color:#fff}
+.header-links .briefing-action:hover{background:#07554f}
 .eyebrow{color:var(--teal);font-weight:800;letter-spacing:.16em;font-size:11px;margin-bottom:6px}
 .subtitle,.subtle{color:var(--muted);line-height:1.6}
 .subtitle{margin-top:7px}
@@ -172,7 +175,7 @@ thead th{background:#eef4f5;color:#294551}
 <main class="shell">
   <header class="head">
     <div><p class="eyebrow">NUMBERED ROUTES · SIMPY</p><h1>七工艺岛仿真演示</h1><p class="subtitle">采用已确认的完整工艺路线，名称以符号表示。其余场景参数可在下方调整。</p></div>
-    __HOSTED_LINK__
+    <div class="header-links"><a class="result-action briefing-action" id="aps-briefing-link" href="./aps-briefing.html">APS 汇报说明</a>__HOSTED_LINK__</div>
   </header>
   <div id="error" role="alert" hidden></div>
   <nav class="step-nav" aria-label="仿真操作与显示">
@@ -355,6 +358,7 @@ thead th{background:#eef4f5;color:#294551}
 </main>
 <dialog id="batching-dialog" aria-label="S01 批处理仿真"></dialog>
 <script type="application/json" id="sim-data">__SIMULATION_JSON__</script>
+<script type="application/json" id="aps-briefing-source">__APS_BRIEFING_JSON__</script>
 <script type="text/plain" id="six-island-engine-source">__SIX_ISLAND_ENGINE__</script>
 <script type="text/plain" id="layout-asset">__LAYOUT_DATA_URI__</script>
 <script id="arrival-engine-source">__ARRIVAL_ENGINE__</script>
@@ -363,6 +367,17 @@ thead th{background:#eef4f5;color:#294551}
 (() => {
   "use strict";
   const byId = id => document.getElementById(id);
+  if(location.protocol==="file:") {
+    byId("aps-briefing-link").addEventListener("click",event=>{
+      event.preventDefault();
+      const currentPage=location.href.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+      const report=JSON.parse(byId("aps-briefing-source").textContent)
+        .replaceAll('href="./index.html"',`href="${currentPage}"`);
+      const url=URL.createObjectURL(new Blob([report],{type:"text/html;charset=utf-8"}));
+      window.open(url,"_blank","noopener");
+      setTimeout(()=>URL.revokeObjectURL(url),60000);
+    });
+  }
   function setPanelVisible(button,visible) {
     byId(button.getAttribute("aria-controls")).hidden=!visible;
     button.setAttribute("aria-expanded",String(visible));
