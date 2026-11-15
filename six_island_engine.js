@@ -20,7 +20,7 @@
     const { parameters, islands, transport, routes } = config ?? {};
     if (!parameters || !routes || !Array.isArray(islands) || !Array.isArray(transport)
         || islands.length !== ISLAND_NAMES.length || transport.length !== ISLAND_NAMES.length) {
-      throw new TypeError("仿真参数须包含六个工艺岛、AGV 时间矩阵和 A/B/C/P 示例路线");
+      throw new TypeError("仿真参数须包含六个工艺岛、AGV 时间矩阵和 A/B/C/P 编号路线");
     }
     const orders = integer(parameters.orders, "订单数", 1);
     const interval = integer(parameters.interval, "到单间隔（秒）", 1);

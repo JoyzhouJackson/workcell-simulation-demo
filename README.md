@@ -1,6 +1,6 @@
-# Synthetic Workcell Simulation
+# Numbered Workcell Simulation
 
-这是使用虚构数据的离散事件仿真演示。路线、加工时间、容量和订单均为重新生成的示例；布局沿用原有的虚构示意图，仅将工艺名称替换为编号。演示用于展示资源调度、缓冲约束与仿真界面。
+这是离散事件仿真演示。加工路线与分段工时采用已确认版本，工艺岛和部件名称使用符号。订单、资源容量、S01 批处理工时和运输时间沿用可修改的场景参数；布局使用虚构示意图。演示用于展示资源调度、缓冲约束与仿真界面。
 
 - [整体仿真](https://joyzhoujackson.github.io/workcell-simulation-demo/)展示 S01–S07 七个编号工艺岛，部件 A、B、C 与总成 P 的流转、库位和订单完成情况。
 - [批处理策略实验](https://joyzhoujackson.github.io/workcell-simulation-demo/scheduling/)使用同一组合成订单比较立即派工与限时等单。
@@ -18,6 +18,8 @@ python verify_seven_island.py
 ```
 
 整体演示由 `seven_island_demo.template.html`、计算引擎和通用布局素材生成到 `docs/index.html`。生成时传入 `--offline demo.html` 可同时得到单文件演示。网页参数使用公开演示专用的浏览器存储空间。
+
+A、B、C、P 分别包含 14、12、3、4 个连续同岛加工段。首次升级时保留旧版订单、资源、搬运和规则设置，路线时间切换为本版基准，避免旧短路线的缓存覆盖新工时。后续编辑仍会自动保存。
 
 ## 示例数据
 

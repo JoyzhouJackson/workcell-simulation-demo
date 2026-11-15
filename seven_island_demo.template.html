@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <link rel="icon" href="data:,">
-<title>七工艺岛合成仿真演示</title>
+<title>七工艺岛仿真演示</title>
 <style>
 :root{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:#142636;background:#eff3f4;font-size:14px;--muted:#526672;--line:#dce5e7;--teal:#096e66;--run-data:#18577d;--surface:#fff}
 *{box-sizing:border-box}
@@ -171,7 +171,7 @@ thead th{background:#eef4f5;color:#294551}
 <body>
 <main class="shell">
   <header class="head">
-    <div><p class="eyebrow">SYNTHETIC DEMO · SIMPY</p><h1>七工艺岛合成仿真演示</h1><p class="subtitle">全部路线、工时、容量与布局均为虚构演示数据。</p></div>
+    <div><p class="eyebrow">NUMBERED ROUTES · SIMPY</p><h1>七工艺岛仿真演示</h1><p class="subtitle">采用已确认的完整工艺路线，名称以符号表示。其余场景参数可在下方调整。</p></div>
     __HOSTED_LINK__
   </header>
   <div id="error" role="alert" hidden></div>
@@ -204,12 +204,12 @@ thead th{background:#eef4f5;color:#294551}
         </section>
         <section class="parameter-group" aria-labelledby="route-parameters-title">
           <h4 id="route-parameters-title">工艺路线与加工时间</h4>
-          <p class="subtle">直接修改有色节点里的秒数。同岛连续工序合成一个节点，节点之间的搬运耗时在 AGV 时间矩阵里设置。</p>
+          <p class="subtle">直接修改有色节点里的秒数。同岛连续工序合成一个节点；各节点执行 D3 排序和 D4 工位分配，跨岛箭头对应 D5 搬运，搬运耗时在 AGV 时间矩阵里设置。</p>
           <div class="scenario-route">
             <div class="route-legend" id="route-legend"></div>
-            <div class="route-print">S01 批处理与机外后处理 → 同单部件 A、部件 B 和部件 C 分别发往 S02</div>
+            <div class="route-print">D1 · S01 排批与机外后处理 → D2 · 下游投放 → 同单部件 A、B、C 分别发往 S02</div>
             <div class="branches" id="branches"></div>
-            <div class="join">S05 齐套 · 同一订单的部件 A、B、C 全部到达</div>
+            <div class="join">S05 齐套 · 同一订单的部件 A、B、C 全部到达后，由 D6 选择合装订单</div>
             <h3>P · 总成</h3>
             <div class="merged" id="merged" aria-label="总成工序"></div>
             <div class="route-exit">↓ 总成末段完工后直接出库</div>
@@ -745,7 +745,8 @@ thead th{background:#eef4f5;color:#294551}
     };
     const baselineSignature=signature(baseline.batching.config);
     let lastRun=baselineSignature;
-    const settingsKey="public-demo.seven-island.settings.v1";
+    const settingsKey="public-demo.seven-island.confirmed-routes.settings.v1";
+    const legacySettingsKey="public-demo.seven-island.settings.v1";
     const editableFields=Array.from(form.elements).filter(field=>field.name && (field.type==="number" || field.type==="checkbox"));
     const fieldValue=field=>field.type==="checkbox"?field.checked:field.valueAsNumber;
     const validSetting=(field,value)=>field.type==="checkbox"?typeof value==="boolean":positiveInteger(value);
@@ -758,7 +759,16 @@ thead th{background:#eef4f5;color:#294551}
     };
     const ruleStatus=(message,isError=false)=>storageStatus(message,isError,"rule-save");
     try {
-      const stored=JSON.parse(localStorage.getItem(settingsKey));
+      let stored=JSON.parse(localStorage.getItem(settingsKey));
+      let migrated=false;
+      if(stored===null) {
+        const legacy=JSON.parse(localStorage.getItem(legacySettingsKey));
+        if(legacy && typeof legacy==="object" && !Array.isArray(legacy)) {
+          stored=Object.fromEntries(Object.entries(legacy).filter(([name])=>!name.startsWith("visit-")));
+          localStorage.setItem(settingsKey,JSON.stringify(stored));
+          migrated=true;
+        }
+      }
       let restored=false;
       for(const field of editableFields) {
         const value=stored?.[field.name];
@@ -768,7 +778,7 @@ thead th{background:#eef4f5;color:#294551}
         else field.value=String(value);
         restored=true;
       }
-      if(restored) storageStatus("已恢复上次保存的设置。修改后会自动保存。");
+      if(restored) storageStatus(migrated?"已恢复通用参数和规则；路线工时已更新为本版基准。":"已恢复上次保存的设置。修改后会自动保存。");
       if(Object.keys(policyNames).some(name=>typeof stored?.[name]==="boolean")) {
         ruleStatus("已恢复上次保存的规则。调整后自动保存，下一次运行生效。");
       }

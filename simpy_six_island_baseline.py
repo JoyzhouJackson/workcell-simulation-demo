@@ -1,9 +1,10 @@
-"""Synthetic SimPy demo with three component routes and an optional batch island.
+"""Numbered SimPy demo with three component routes and an optional batch island.
 
-All routes, times, capacities and identifiers in this public demo are fabricated.
+Route segments and processing times follow the confirmed version. Resource names
+and operation labels use symbols; other settings remain scenario parameters.
 
 Install SimPy with `python -m pip install simpy==4.1.1`.
-Run the 36-order synthetic scenario with:
+Run the 36-order example scenario with:
     python simpy_six_island_baseline.py --orders 36 --reserve-return --shared-kit-slot
 Add --order-csv order_times.csv or --trace-json trace.json to export results.
 Add --batching-config settings.json to simulate the complete seven-island line.
@@ -53,32 +54,48 @@ class Visit:
     operations: str
 
 
-# Fabricated routes preserve re-entry and assembly behavior for demonstrations.
+# Confirmed segments combine consecutive same-island operations on one station.
 ROUTES = {
     "L": (
-        Visit(CELL_A, 52, "A-1"),
-        Visit(CELL_B, 76, "A-2"),
-        Visit(CELL_E, 41, "A-3"),
-        Visit(CELL_A, 68, "A-4"),
-        Visit(CELL_C, 125, "A-5"),
+        Visit(CELL_A, 45, "A01"),
+        Visit(ASSEMBLY, 30, "A02"),
+        Visit(CELL_E, 135, "A03"),
+        Visit(CELL_A, 105, "A04"),
+        Visit(CELL_C, 1800, "A05"),
+        Visit(CELL_E, 30, "A06"),
+        Visit(CELL_B, 15, "A07"),
+        Visit(CELL_E, 15, "A08"),
+        Visit(CELL_A, 30, "A09"),
+        Visit(CELL_E, 30, "A10"),
+        Visit(CELL_A, 90, "A11"),
+        Visit(CELL_E, 30, "A12"),
+        Visit(CELL_A, 60, "A13"),
+        Visit(CELL_B, 45, "A14"),
     ),
     "R": (
-        Visit(CELL_A, 47, "B-1"),
-        Visit(CELL_F, 83, "B-2"),
-        Visit(CELL_C, 96, "B-3"),
-        Visit(CELL_E, 58, "B-4"),
+        Visit(CELL_A, 45, "B01"),
+        Visit(ASSEMBLY, 30, "B02"),
+        Visit(CELL_E, 90, "B03"),
+        Visit(CELL_A, 105, "B04"),
+        Visit(CELL_C, 1800, "B05"),
+        Visit(CELL_E, 30, "B06"),
+        Visit(CELL_B, 15, "B07"),
+        Visit(CELL_E, 45, "B08"),
+        Visit(CELL_A, 60, "B09"),
+        Visit(CELL_E, 75, "B10"),
+        Visit(CELL_A, 60, "B11"),
+        Visit(CELL_B, 30, "B12"),
     ),
     "F": (
-        Visit(CELL_A, 63, "C-1"),
-        Visit(CELL_E, 49, "C-2"),
-        Visit(CELL_B, 72, "C-3"),
-        Visit(CELL_A, 39, "C-4"),
+        Visit(CELL_A, 105, "C01"),
+        Visit(CELL_F, 105, "C02"),
+        Visit(CELL_A, 165, "C03"),
     ),
     "M": (
-        Visit(ASSEMBLY, 88, "P-1"),
-        Visit(CELL_A, 57, "P-2"),
-        Visit(ASSEMBLY, 64, "P-3"),
-        Visit(CELL_A, 46, "P-4"),
+        Visit(ASSEMBLY, 75, "P01"),
+        Visit(CELL_A, 180, "P02"),
+        Visit(ASSEMBLY, 60, "P03"),
+        Visit(CELL_A, 165, "P04"),
     ),
 }
 
@@ -420,7 +437,7 @@ class Baseline:
                 island.buffer.remove(part)
             part = parts[0] if len(parts) == 1 else Part(parts[0].order, "M")
             # Convert one of the vacated slots into this job's exclusive return slot.
-            # The final M visit leaves the system directly after IN03.
+            # The final P visit leaves the system directly after its final segment.
             needs_return = part.kind != "M" or part.step + 1 < len(ROUTES["M"])
             occupied = {work.machine for work in island.work}
             machine = next(index for index in range(1, island.machines + 1) if index not in occupied)
