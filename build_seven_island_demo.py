@@ -53,7 +53,8 @@ def build(hosted, offline=None):
         if template.count(marker) != 1:
             raise ValueError(f"模板标记 {marker} 须出现一次。")
         template = template.replace(marker, value)
-    hosted_link = '<a href="./scheduling/" class="subtle">S01 批处理策略对照实验</a>'
+    hosted_link = ('<a href="./index.html" class="subtle">静态协同排程与 3D 回放</a>'
+                   '<a href="./scheduling/" class="subtle">S01 批处理策略对照实验</a>')
     hosted.write_text(template.replace("__HOSTED_LINK__", hosted_link), encoding="utf-8", newline="\n")
     if offline is not None:
         offline.write_text(template.replace("__HOSTED_LINK__", ""), encoding="utf-8", newline="\n")
@@ -61,7 +62,7 @@ def build(hosted, offline=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "docs/index.html")
+    parser.add_argument("--output", type=Path, default=ROOT / "docs/classic.html")
     parser.add_argument("--offline", type=Path)
     args = parser.parse_args()
     build(args.output, args.offline)

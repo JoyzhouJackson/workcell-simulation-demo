@@ -1,0 +1,212 @@
+.joint-factory {
+  min-width: 0;
+}
+
+.joint-factory .factory-stage {
+  position: relative;
+  min-width: 0;
+  height: clamp(360px, 36vw, 500px);
+  overflow: hidden;
+  isolation: isolate;
+  background: #e2eaf0;
+  border: 1px solid #cddbe3;
+  border-radius: 13px;
+}
+
+.joint-factory canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+
+.joint-factory canvas.factory-dragging {
+  cursor: grabbing;
+}
+
+.joint-factory canvas:focus-visible {
+  outline: 2px solid #3f69bd;
+  outline-offset: -2px;
+}
+
+.joint-factory .factory-overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.joint-factory .factory-label,
+.joint-factory .factory-vehicle-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 2.6rem;
+  max-width: max-content;
+  width: max-content;
+  padding: 0.15rem 0.32rem;
+  background: #203345f4;
+  color: #f0f7fc;
+  border: 1px solid #e8f5fbd9;
+  border-top: 2px solid var(--factory-color, #829eb3);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px #233a4e33;
+  font: 650 9px/1.2 system-ui, sans-serif;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.joint-factory .factory-label b {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.015em;
+  font-weight: 750;
+}
+
+.joint-factory .factory-label span {
+  display: block;
+  margin-top: 0.11rem;
+  color: #d3e7f1;
+}
+
+.joint-factory .factory-label.factory-active {
+  border-color: #41c397;
+  color: #c1f0da;
+}
+
+.joint-factory .factory-vehicle-label {
+  min-width: 1rem;
+  padding: 0.08rem 0.22rem;
+  border: 1px solid #3c7893;
+  border-radius: 4px;
+  box-shadow: none;
+  background: #dcf4ff;
+  color: #16447b;
+  font-size: 8px;
+}
+
+.joint-factory .factory-vehicle-label[data-state=loaded] {
+  border-color: #af7e3c;
+  background: #fff2c2;
+  color: #784516;
+}
+
+.joint-factory .factory-vehicle-label[data-state=waiting] {
+  border-color: #886caa;
+  background: #f0e9f8;
+  color: #51366e;
+}
+
+.joint-factory .factory-tools,
+.joint-factory .factory-legend {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  border: 1px solid #bacbd7;
+  background: #f6fbffef;
+  box-shadow: 0 3px 9px #2b475422;
+}
+
+.joint-factory .factory-tools {
+  right: 0.72rem;
+  top: 0.72rem;
+  gap: 1px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.joint-factory .factory-tools button {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 2.12rem;
+  height: 2.05rem;
+  border: 0;
+  border-left: 1px solid #dee7ec;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: #254358;
+  cursor: pointer;
+  font: 650 1.07rem/1 system-ui, sans-serif;
+}
+
+.joint-factory .factory-tools button:first-child {
+  border-left: 0;
+}
+
+.joint-factory .factory-tools button:hover,
+.joint-factory .factory-tools button[aria-pressed=true] {
+  background: #daeaf1;
+}
+
+.joint-factory .factory-tools button:focus-visible {
+  outline: 2px solid #3f69bd;
+  outline-offset: -2px;
+}
+
+.joint-factory .factory-legend {
+  bottom: 0.65rem;
+  left: 0.65rem;
+  flex-wrap: wrap;
+  gap: 0.22rem 0.65rem;
+  padding: 0.37rem 0.49rem;
+  border-radius: 7px;
+  color: #2a475c;
+  font: 660 10px/1.2 system-ui, sans-serif;
+  pointer-events: none;
+}
+
+.joint-factory .factory-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.23rem;
+}
+
+.joint-factory .factory-legend i {
+  width: 0.52rem;
+  height: 0.52rem;
+  border: 1px solid #25465c42;
+  border-radius: 3px;
+}
+
+.joint-factory .factory-loaded { background: #f6ae4e; }
+.joint-factory .factory-moving { background: #72d5fb; }
+.joint-factory .factory-busy { background: #31c698; }
+.joint-factory .factory-reserved { background: #ffe39a; }
+
+.joint-factory .factory-unavailable {
+  margin: 1rem;
+  padding: 1rem;
+  background: #f7fbfe;
+  color: #233e4e;
+  border: 1px solid #c9d9e4;
+  border-radius: 8px;
+}
+
+@media (max-width: 650px) {
+  .joint-factory .factory-stage {
+    height: clamp(290px, 82vw, 410px);
+  }
+
+  .joint-factory .factory-label {
+    min-width: 0;
+    padding: 0.095rem 0.22rem;
+    border-radius: 4px;
+  }
+
+  .joint-factory .factory-label b {
+    font-size: 8px;
+  }
+
+  .joint-factory .factory-label span {
+    display: none;
+  }
+
+  .joint-factory .factory-vehicle-label {
+    display: none;
+  }
+}

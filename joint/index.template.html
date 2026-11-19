@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <meta name="theme-color" content="#f1f4f3">
+  <meta name="description" content="在同一个仿真时钟下回放设备排程、AGV 搬运及车间三维状态。">
+  <title>排产与 AGV 协同仿真</title>
+  <link rel="stylesheet" href="./joint/joint.css">
+  <link rel="stylesheet" href="./joint/factory-view.css">
+  <link rel="stylesheet" href="./joint/gantt.css">
+  <script type="module" src="./joint/app.js"></script>
+</head>
+<body class="joint-page">
+  <a class="skip-link" href="#main">跳到仿真</a>
+  <header class="site-header">
+    <div class="page-width header-inner">
+      <a class="brand" href="./index.html" aria-label="排产与 AGV 协同仿真首页">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" fill="none">
+          <rect width="28" height="28" rx="7" fill="currentColor"/>
+          <path d="M6.5 19.5h15M7.5 15.5h3v-5h3v5h3v-7h3.5v7" stroke="white" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        工艺岛调度仿真
+      </a>
+      <nav class="site-nav" aria-label="演示页面">
+        <a class="nav-emphasis" id="aps-briefing-link" href="./aps-briefing.html">APS 汇报说明</a>
+        <a href="./scheduling/">S01 专项实验</a>
+        <a href="./classic.html">原版回放</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" class="page-width">
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">静态批次</p>
+        <h1 id="page-title">排产与 AGV 协同仿真</h1>
+        <p class="hero-note">从 S01 批加工到三条零件路线、齐套和出库，在同一条时间轴查看工位、库位和车辆。</p>
+      </div>
+      <button class="button primary" id="settings-toggle" type="button" aria-controls="scenario-settings" aria-expanded="false">
+        <svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14M7 3v4m6 1v4m-5 1v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        仿真参数
+      </button>
+    </section>
+
+    <section id="scenario-settings" class="panel parameters" aria-labelledby="settings-title" hidden>
+      <div class="panel-heading settings-heading">
+        <div><h2 id="settings-title">仿真参数</h2><p>参数自动保存在当前浏览器。运行后生成新的排程与回放。</p></div>
+        <button class="button secondary" id="defaults-button" type="button">恢复默认</button>
+      </div>
+      <form id="scenario-form">
+        <div class="field-grid">
+          <label class="field">订单数<span><input data-setting="orders" type="number" min="1" max="100" step="1" required> 单</span></label>
+          <label class="field">S02 实体岛<span><input data-setting="glueCount" type="number" min="1" max="4" step="1" required> 个</span></label>
+          <label class="field">S04 实体岛<span><input data-setting="restCount" type="number" min="1" max="4" step="1" required> 个</span></label>
+          <label class="field">普通岛缓冲<span><input data-setting="buffer" type="number" min="1" max="9999" step="1" required> 格/岛</span></label>
+          <label class="field">S04 缓冲<span><input data-setting="restBuffer" type="number" min="1" max="9999" step="1" required> 格/岛</span></label>
+          <label class="field">AGV 数量<span><input data-setting="agvs" type="number" min="0" max="40" step="1" required> 台</span><small>填 0 按实体岛数</small></label>
+          <label class="field">每车最多<span><input data-setting="maxLoad" type="number" min="1" max="5" step="1" required> 件</span></label>
+          <label class="field">AGV 速度<span><input data-setting="speed" type="number" min="0.1" max="5" step="0.1" required> m/s</span></label>
+          <label class="field">装货时间<span><input data-setting="loadSeconds" type="number" min="0" max="600" step="1" required> 秒/件</span></label>
+          <label class="field">卸货时间<span><input data-setting="unloadSeconds" type="number" min="0" max="600" step="1" required> 秒/件</span></label>
+          <label class="field">S01 设备<span><input data-setting="printMachines" type="number" min="1" max="12" step="1" required> 台</span></label>
+          <label class="field">S01 准备<span><input data-setting="prepMinutes" type="number" min="0" max="180" step="1" required> 分钟</span></label>
+          <label class="field">S01 后处理<span><input data-setting="postMinutes" type="number" min="0" max="180" step="1" required> 分钟</span></label>
+          <label class="field">S01 换批<span><input data-setting="switchMinutes" type="number" min="0" max="180" step="1" required> 分钟</span></label>
+        </div>
+        <div class="settings-actions">
+          <label class="check-field"><input data-setting="combine" type="checkbox">等待往返窗口内预计就绪的同路件</label>
+          <p>加工时长可直接在下方工艺路线编辑。<a href="#routes">查看路线</a></p>
+          <button class="button primary" id="run-button" type="submit">运行联合排程</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="workspace" id="workspace" aria-label="仿真回放">
+      <div class="run-line">
+        <span id="run-status" class="run-status" role="status">正在加载示例排程…</span>
+        <span id="parameter-status" class="parameter-status" hidden>参数已修改 · 运行后更新回放</span>
+      </div>
+      <div id="error-panel" class="message error-message" role="alert" hidden></div>
+      <div id="blocking-panel" class="message warning-message" hidden><strong>未完成全部订单</strong><ul id="blocking-list"></ul></div>
+      <section class="panel playback" aria-label="同步播放控制">
+        <button class="button primary playback-play" id="play-button" type="button" disabled aria-label="播放回放"><span id="play-icon" aria-hidden="true">▶</span> <span id="play-label">播放</span></button>
+        <button class="button secondary playback-reset" id="reset-button" type="button" disabled>回到起点</button>
+        <button class="button secondary playback-jump" id="first-trip" type="button" disabled>首趟搬运</button>
+        <div class="timeline-input">
+          <div class="time-readout"><output id="time-label" for="clock-slider">00:00:00</output><span id="duration-label">/ —</span></div>
+          <input id="clock-slider" type="range" min="0" max="1" value="0" step="any" aria-label="仿真时间" disabled>
+        </div>
+        <label class="playback-speed">播放速度<select id="play-speed" aria-label="播放速度"><option value="1">1×</option><option value="120" selected>120×</option><option value="600">600×</option><option value="1800">1,800×</option><option value="3600">3,600×</option><option value="7200">7,200×</option></select></label>
+      </section>
+      <div class="views">
+        <section class="panel view" aria-labelledby="factory-title">
+          <div class="panel-heading compact"><div><h2 id="factory-title">3D 车间</h2><p>拖动旋转，滚动缩放</p></div><span class="view-clock" aria-hidden="true"><i></i>共享时钟</span></div>
+          <div class="joint-factory" id="factory-view" aria-label="交互式 3D 车间"></div>
+        </section>
+        <section class="panel view" aria-labelledby="gantt-title">
+          <div class="panel-heading compact"><div><h2 id="gantt-title">设备与 AGV 甘特图</h2><p>点击图中时间跳转车间回放</p></div><span class="view-clock" aria-hidden="true"><i></i>共享时钟</span></div>
+          <div id="gantt-view" aria-label="甘特图"></div>
+        </section>
+      </div>
+      <dl class="metrics" aria-label="当前和本轮结果">
+        <div class="panel metric"><dt>当前出库</dt><dd id="metric-complete">—</dd></div>
+        <div class="panel metric"><dt>当前执行任务的 AGV</dt><dd id="metric-vehicles">—</dd></div>
+        <div class="panel metric"><dt>本轮平均订单流动时间</dt><dd id="metric-flow">—</dd></div>
+        <div class="panel metric"><dt>本轮总搬运车次</dt><dd id="metric-trips">—</dd></div>
+      </dl>
+    </section>
+
+    <details class="panel report-panel" id="results">
+      <summary><span><strong>结果与库位</strong><small>各岛当前占位、交通诊断和订单流动时间</small></span><span class="disclosure-icon" aria-hidden="true"></span></summary>
+      <div class="report-body">
+        <div class="results-grid">
+          <section aria-labelledby="buffers-title"><h3 id="buffers-title">当前库位</h3><p class="muted">深色为实占，浅色为入站或回存预留。</p><div id="buffer-list" class="buffer-list"></div></section>
+          <section aria-labelledby="validation-title"><h3 id="validation-title">本轮校验</h3><dl id="validation-list" class="validation-list"></dl><p class="muted" id="traffic-note"></p><details class="traffic-details" id="traffic-details" hidden><summary>查看潜在争用时间</summary><ul id="traffic-list"></ul></details></section>
+        </div>
+        <section class="order-details" aria-labelledby="orders-title">
+          <div class="subheading"><h3 id="orders-title">订单明细</h3><button class="button secondary" id="export-button" type="button" disabled>导出 CSV</button></div>
+          <div class="table-scroll"><table><thead><tr><th scope="col">订单</th><th scope="col">到达</th><th scope="col">完工</th><th scope="col">流动时间</th></tr></thead><tbody id="order-rows"></tbody></table></div>
+        </section>
+      </div>
+    </details>
+
+    <details class="panel report-panel" id="routes">
+      <summary><span><strong>工艺路线与时长</strong><small>按工序编辑秒数，运行后应用</small></span><span class="disclosure-icon" aria-hidden="true"></span></summary>
+      <div class="report-body route-body">
+        <div class="subheading route-heading"><p class="route-caption">S01 批加工与后处理完成后，A、B、C 并行流转，按同一订单在 S05 齐套。随后按 P 段加工并记为出库。</p><button class="button primary" id="route-run-button" type="button" disabled>应用并运行</button></div>
+        <div id="route-list" class="route-list"></div>
+      </div>
+    </details>
+
+    <details class="panel report-panel" id="rules">
+      <summary><span><strong>规则与参数</strong><small>静态排程、AGV 凑批和库位预约的口径</small></span><span class="disclosure-icon" aria-hidden="true"></span></summary>
+      <div class="report-body rule-grid">
+        <section><h3>订单与工艺</h3><p>订单在零时刻统一到达。批加工后拆分为 A、B、C，在 S05 齐套后按 P 路线加工。独立加工段开工前先经缓冲，待回存的工件开工时锁定回存位。S04 可并行静置，仍占缓冲容量。</p></section>
+        <section><h3>搬运与凑批</h3><p>有限车队从 S01 旁出发。同一车次只走一对实体岛，载量 1–5 件。开启凑批时，可在预计往返时间内等同路件。取货前先锁目标位，运输计入空驶和装卸。</p></section>
+        <section><h3>可行性与评价</h3><p>把工位、车辆与库位排在同一条时间轴。库位不足时尝试调整顺序或错峰投放，完整排空后才标为可执行。平均订单流动时间为完工减到达的平均值。</p></section>
+        <section><h3>首轮实验边界</h3><p>车间采用示意布局，路径和装卸时间使用估算参数。规划沿固定路径行驶，记录潜在路段争用。首轮采用静态批次，四小时集单与未完成任务重排属后续实验。暂不计电量。</p></section>
+      </div>
+    </details>
+  </main>
+  <footer class="page-width site-footer">工艺岛调度仿真 <span>编号工艺与示意布局</span></footer>
+  <noscript><p class="message warning-message">请启用 JavaScript 以使用联排和回放。</p></noscript>
+</body>
+</html>
