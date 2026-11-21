@@ -1,0 +1,79 @@
+.mathematical-model {
+  margin: 16px 0 20px;
+  padding: clamp(16px, 2.5vw, 36px);
+  color: #203c36;
+  --model-border: #d8e5df;
+}
+
+.model-header h2 { font-size: clamp(1.45rem, 2.5vw, 2rem); letter-spacing: -.02em; }
+.model-header p, .model-section > p { max-width: 95ch; margin: .55rem 0; line-height: 1.7; }
+.model-header .model-scope {
+  padding: .65rem .8rem;
+  border-left: 3px solid #398f7c;
+  background: #edf6f2;
+  color: #35594f;
+}
+.model-nav { display: flex; gap: .45rem; flex-wrap: wrap; margin: .8rem 0 0; }
+.model-nav a {
+  color: #11695d;
+  border: 1px solid var(--model-border);
+  border-radius: 5px;
+  padding: .23rem .6rem;
+  text-decoration: none;
+  font-size: .86rem;
+}
+.model-nav a:hover { background: #e4f2ee; }
+.model-section { border-top: 1px solid var(--model-border); margin-top: 1.25rem; padding-top: .9rem; }
+.model-section h3 { font-size: 1.23rem; margin: 0 0 .55rem; }
+.model-section h4 { font-size: 1rem; margin: .5rem 0 .35rem; }
+.model-card, .model-constraint {
+  padding: .64rem .85rem;
+  border-radius: 8px;
+  border: 1px solid #e0eae5;
+  margin: .55rem 0;
+  min-width: 0;
+}
+.model-card p, .model-constraint p { margin: .38rem 0 .62rem; line-height: 1.6; }
+.model-equation {
+  display: grid;
+  grid-template-columns: minmax(max-content,1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: .48rem .72rem;
+  background: #f3f8f6;
+  border-left: 2px solid #76ac9e;
+  border-radius: 3px;
+  margin: .45rem 0;
+  color: #172e29;
+}
+.model-equation math { font-size: 1.06rem; text-align: start; }
+.model-equation .katex { min-width: max-content; }
+.model-equation-number { color: #52756c; font: .82rem ui-monospace, monospace; }
+.model-note { color: #4c6961; font-size: .88rem; }
+.model-symbols {
+  display: grid;
+  grid-template-columns: minmax(13rem, 34%) minmax(0, 1fr);
+  margin: .35rem 0 .92rem;
+  border: 1px solid var(--model-border);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: .9rem;
+}
+.model-symbols dt, .model-symbols dd {
+  border-bottom: 1px solid #e3ede8;
+  margin: 0;
+  padding: .45rem .65rem;
+  line-height: 1.55;
+  min-width: 0;
+}
+.model-symbols dt { background: #f1f7f4; overflow-x: auto; color: #1e544a; }
+.model-symbols dt:last-of-type, .model-symbols dd:last-of-type { border-bottom: 0; }
+.mathematical-model :is(section, article)[id], #mathematical-model { scroll-margin-top: 1rem; }
+
+@media (max-width: 690px) {
+  .model-symbols { grid-template-columns: 1fr; }
+  .model-symbols dt:last-of-type { border-bottom: 1px solid #e3ede8; }
+  .model-equation { padding-inline: .5rem; }
+  .model-card, .model-constraint { padding-inline: .58rem; }
+}

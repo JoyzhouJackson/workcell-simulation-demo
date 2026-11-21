@@ -1,0 +1,178 @@
+<section class="panel mathematical-model" id="mathematical-model" aria-labelledby="model-title">
+  <header class="model-header">
+    <h2 id="model-title">排产与 AGV 协同调度数学模型</h2>
+    <p>给定一批订单，同时决定批加工怎么分批、每道工序去哪座实体岛、在什么时候开工，以及由哪辆 AGV 把哪些工件一起运走。目标是在设备、库位和车辆都可用的前提下，缩短订单从到达到完工的平均时间。</p>
+    <p class="model-scope">下文是静态批次的连续时间优化模型，可用于建立求解器对照组。网页当前用 Python / SimPy 构造并校验可行计划。公式把资源与工艺的可行条件写清楚，实际选岛、发车等待与错峰投放由网页的调度规则决定。</p>
+    <nav class="model-nav" aria-label="数学模型目录">
+      <a href="#model-notation">符号与变量</a><a href="#model-objective">目标</a>
+      <a href="#model-equipment">设备</a><a href="#model-buffer">Buffer</a>
+      <a href="#model-agv">AGV</a><a href="#model-process">业务逻辑</a>
+      <a href="#model-links">变量联动</a>
+    </nav>
+  </header>
+
+  <section class="model-section" id="model-notation">
+    <h3>1. 符号与变量</h3>
+    <p>时间单位为秒。实体岛用物理编号区分，如 S02-1 与 S02-2，虽然工艺能力一样，工位、库位与行驶距离各自独立。S01 是批加工岛，S05 是齐套合装位置。静态试验在时间零取得全部订单，初始车队统一停在 S01 旁。</p>
+    <h4>集合与索引</h4>
+    <dl class="model-symbols">
+      <dt><span data-tex>\mathcal J,\ j;\quad \mathcal I,\ i;\quad \iota_j,\phi_j</span></dt><dd>订单、实际工序、订单 <span data-tex>j</span> 的首道合装工序与末道总成工序。A、B、C 各自有有序路线，三条路线都汇到 <span data-tex>\iota_j</span>，随后按 P 路线加工。</dd>
+      <dt><span data-tex>\mathcal L,\ \ell,m;\quad \mathcal L_i;\quad \mathcal L^{\mathrm{mach}}</span></dt><dd>实体岛、工序可选岛、配单工位的下游岛。S04 各实体岛允许多件并行静置，受库位容量限制。</dd>
+      <dt><span data-tex>\mathcal E,\ e=(u(e),v(e));\quad \mathcal E_j^0,\mathcal E_j^{\mathrm K}</span></dt><dd>工序衔接弧。<span data-tex>\mathcal E_j^0</span> 从订单的虚拟后处理完成点 <span data-tex>o_j^0</span> 连向 A、B、C 首工序；<span data-tex>\mathcal E_j^{\mathrm K}</span> 从三条支路的尾工序连向同单的合装工序。其余弧连接相邻工序。</dd>
+      <dt><span data-tex>\mathcal B,\ b;\quad \mathcal N,\ n;\quad \mathcal D^0,\ d</span></dt><dd>S01 候选批次、启用的整批订单数、批加工设备。候选批次可取 <span data-tex>|\mathcal J|</span> 个，允许留空。</dd>
+      <dt><span data-tex>\mathcal K,\ k,h;\quad \mathcal G,\ g;\quad \mathcal D,\ o</span></dt><dd>候选车次、AGV、装卸口服务作业。每个运输需求可以单独成车，故候选车次数可取 <span data-tex>|\mathcal E|</span>。</dd>
+      <dt><span data-tex>\Omega,\ \omega;\quad \mathcal Q_\ell=\{1,\ldots,B_\ell\}</span></dt><dd>库位占用段、实体岛 <span data-tex>\ell</span> 的库格编号。一个占用段可以覆盖实际入库、预留和回存。</dd>
+    </dl>
+
+    <h4>参数</h4>
+    <dl class="model-symbols">
+      <dt><span data-tex>r_j,\ p_{i\ell}</span></dt><dd>订单到达时刻与工序在候选岛上的加工时长。首轮 <span data-tex>r_j=0</span>。</dd>
+      <dt><span data-tex>p_n^0,\ \tau^{\mathrm{pre}},\tau^{\mathrm{post}},\tau^{\mathrm{sw}}</span></dt><dd>S01 各批量的加工时长，以及每批的准备、后处理和设备换批时长。</dd>
+      <dt><span data-tex>B_\ell,\ Q,\ \lambda^{\mathrm L},\lambda^{\mathrm U}</span></dt><dd>每岛库位数、每车载量上限、单位工件装货与卸货时间。示例普通岛 50 格、S04 各岛 999 格，车辆最多装 5 件。</dd>
+      <dt><span data-tex>\tau^0_{p\ell},\ \tau^1_{\ell m},\ \bar T,\ M</span></dt><dd>车辆从位置 <span data-tex>p</span> 到取货岛的空驶时长、跨岛载货时长、计划时域上界、用于条件式线性化的有效常数。固定路径行驶时长按路径距离除以车速并向上取整到秒。</dd>
+    </dl>
+
+    <h4>0–1 整数决策变量</h4>
+    <dl class="model-symbols">
+      <dt><span data-tex>x_{i\ell},\ a_{jb},\ \lambda_{bn},\ \mu_{bd}</span></dt><dd>工序选择实体岛，订单进入 S01 批次，批次选择批量，批次分配给 S01 设备。选中时取 1。非候选岛的 <span data-tex>x_{i\ell}=0</span>。</dd>
+      <dt><span data-tex>z_{ek},\ a_{k\ell m},\ w_{kg},\ y_{ghk}</span></dt><dd>衔接弧并入车次，车次选择起讫岛，车次分配给车辆，车次 <span data-tex>h</span> 是车次 <span data-tex>k</span> 在同一车辆上的紧邻前序。路径首尾使用虚拟节点。</dd>
+      <dt><span data-tex>\zeta_{\omega\ell s}</span></dt><dd>占用段 <span data-tex>\omega</span> 使用实体岛 <span data-tex>\ell</span> 的第 <span data-tex>s</span> 格。</dd>
+    </dl>
+
+    <h4>连续时间变量</h4>
+    <dl class="model-symbols">
+      <dt><span data-tex>S_i,C_i;\quad H_b,S_b,C_b,F_b</span></dt><dd>工序开工、完工，S01 批次的开始准备、开始批加工、批加工完成、后处理完成。均取 <span data-tex>[0,\bar T]</span> 内实数。</dd>
+      <dt><span data-tex>D_k,A_k,L_k,P_k,R_k,U_k,F_k</span></dt><dd>车次分别处于派车、空驶到取货点、开始装货、装货完成、载货到目的岛、开始卸货、卸货完成。均取 <span data-tex>[0,\bar T]</span> 内实数。</dd>
+    </dl>
+
+    <h4>辅助变量</h4>
+    <dl class="model-symbols">
+      <dt><span data-tex>\rho_b,\rho_k,\delta_e;\quad s_{k\ell},d_{k\ell},b_{o\ell}</span></dt><dd>是否使用批次、是否使用车次、是否跨岛。后三项表示车次的取货岛、送达岛以及装卸作业的位置。均由选择变量联立确定，取 0 或 1。</dd>
+      <dt><span data-tex>\pi_{bb'd},\ \omega_{ii'\ell},\ \gamma^{\mathrm{dock}}_{oo'\ell},\ \eta_{\omega\omega'\ell s}</span></dt><dd>同一 S01 设备、下游工位、装卸口、库格上两个占用区间的顺序指示量，取 0 或 1。</dd>
+      <dt><span data-tex>N_k\in\{0,\ldots,Q\}</span></dt><dd>车次载荷件数，由并入车次的运输需求数决定。</dd>
+      <dt><span data-tex>s_j^0,f_j^0;\ h_e,p_e,q_e;\ \alpha_\omega,\beta_\omega;\ C_j^{\mathrm{out}}</span></dt><dd>各订单 S01 开始准备与结束后处理的时刻、各衔接弧锁定目标位 / 释放源位 / 交货的时刻、各库位占用段的开始与结束、订单完工时刻。为取值在 <span data-tex>[0,\bar T]</span> 内的连续变量。</dd>
+      <dt><span data-tex>\xi_{\omega\ell},\ (s_o,f_o),\ \nu_c,\chi_c</span></dt><dd>库位占用段所属岛的 0–1 指示量、装卸段的起止时刻（秒，均在 <span data-tex>[0,\bar T]</span> 内）、计算最大和最小时间端点时使用的 0–1 选择量。</dd>
+    </dl>
+  </section>
+
+  <section class="model-section" id="model-objective">
+    <h3>2. 目标函数</h3>
+    <article class="model-card">
+      <h4>最小化平均订单流动时间</h4>
+      <p>每单从接单开始计时，经过 S01、三条零件支路、等待齐套和 P 路线，末道总成工序完成时计为出库。三件中任一件的完成都不能单独计为该订单完成。</p>
+      <div class="model-equation" data-tex>\begin{aligned}
+        C_j^{\mathrm{out}} &amp;= C_{\phi_j}, && j\in\mathcal J,\\
+        \min\quad \overline F &amp;= \frac{1}{|\mathcal J|}\sum_{j\in\mathcal J}(C_j^{\mathrm{out}}-r_j).
+      \end{aligned}</div>
+    </article>
+  </section>
+
+  __MODEL_EQUIPMENT__
+
+  <section class="model-section" id="model-buffer">
+    <h3>4. Buffer 相关约束</h3>
+    <article class="model-card">
+      <h4>普通工序占用同一格，直到取走</h4>
+      <p>跨岛件从派车锁定目标位起占用目的岛的一格，卸货后转为实际库存。开工时这格转为自己的回存预留，完工后回到该格，下一趟搬运装完货时释放。同岛连续工序在前序完工事件处衔接。订单末道工序完成后直接出库，因此末道只保留入站库格到开工时刻。</p>
+      <div class="model-equation" data-tex>\begin{aligned}
+        \alpha_i &amp;=h_{e_i^-} &amp;&amp; (i\ne\iota_j),\\
+        \beta_i &amp;=p_{e_i^+} &amp;&amp; (i\ne\iota_j,\ i\ne\phi_j),\\
+        \beta_{\phi_j} &amp;=S_{\phi_j} &amp;&amp; (j\in\mathcal J).
+      \end{aligned}</div>
+      <p class="model-note"><span data-tex>e_i^-</span> 与 <span data-tex>e_i^+</span> 分别表示普通工序 <span data-tex>i</span> 的唯一入弧与出弧（末道没有出弧）。这里用工序号 <span data-tex>i</span> 标识其普通库位占用段。</p>
+    </article>
+    <article class="model-card">
+      <h4>S01 一单一格，三件取完才释放</h4>
+      <p>S01 准备、批加工、后处理与待取期间，每单对应的三件共用一格。即使先取走其中一件，只要还有本单零件在岛内，该格就继续占用。</p>
+      <div class="model-equation" data-tex>\alpha_{\omega_j^0}=s_j^0,\qquad
+        \beta_{\omega_j^0}=\max_{e\in\mathcal E_j^0}\,p_e
+        \qquad(j\in\mathcal J).</div>
+    </article>
+    <article class="model-card">
+      <h4>S05 同单三件共一个齐套位</h4>
+      <p>第一件锁定齐套位时即开始占用。后续同单零件进入同一个齐套位，直到合装开工消耗三件。如果合装后仍有 P 段，则将该格转为总成的回存预留，并保持到总成离开。</p>
+      <div class="model-equation" data-tex>\begin{aligned}
+        \alpha_{\omega_j^{\mathrm K}} &amp;=\min_{e\in\mathcal E_j^{\mathrm K}}\,h_e,&amp;\quad
+        \beta_{\omega_j^{\mathrm K}} &amp;= S_{\iota_j},\\
+        \alpha_{\omega_j^{\mathrm P}} &amp;= S_{\iota_j},&amp;
+        \beta_{\omega_j^{\mathrm P}} &amp;=p_{e_{\iota_j}^{+}}\quad(\iota_j\ne\phi_j),\\
+        \zeta_{\omega_j^{\mathrm K},\ell_5,s} &amp;=\zeta_{\omega_j^{\mathrm P},\ell_5,s}
+        &amp;&amp; (s\in\mathcal Q_{\ell_5},\ \iota_j\ne\phi_j).
+      \end{aligned}</div>
+      <p class="model-note">若合装本身就是末道，则仅保留齐套段；<span data-tex>\ell_5</span> 表示 S05。库位按订单计格，AGV 载量仍按实际零件件数计。</p>
+    </article>
+    <article class="model-card">
+      <h4>每个占用段只分一格，同一格不能同时被占</h4>
+      <p>为每个占用段指定其所属实体岛。普通段跟随工序选岛，S01 套件段固定在 S01，合装前后占用段固定在 S05。一件工件连续做两道同岛普通工序时，沿用原格。用半开区间计占用，前一段释放的时刻可以交给后一段。两段选了同格时，必须完整排开。</p>
+      <div class="model-equation" data-tex>\begin{aligned}
+        &amp;\sum_{s\in\mathcal Q_\ell}\zeta_{\omega\ell s}=\xi_{\omega\ell},\quad
+            0\le\alpha_\omega\le\beta_\omega\le\bar T,\\
+        &amp;\beta_\omega\le\alpha_{\omega'}+
+          M(3-\zeta_{\omega\ell s}-\zeta_{\omega'\ell s}-\eta_{\omega\omega'\ell s}),\\
+        &amp;\beta_{\omega'}\le\alpha_\omega+
+          M(2-\zeta_{\omega\ell s}-\zeta_{\omega'\ell s}+\eta_{\omega\omega'\ell s}),\\
+        &amp;\delta_{(i,i')}=0\ \Longrightarrow\ \zeta_{i\ell s}=\zeta_{i'\ell s}
+          \quad\bigl((i,i')\in\mathcal E,\ i,i'\text{ both ordinary}\bigr).
+      \end{aligned}</div>
+      <p class="model-note"><span data-tex>\xi_{\omega\ell}=x_{i\ell}</span> 用于普通段，固定岛段对应的 <span data-tex>\xi_{\omega\ell}</span> 取该岛的指示值。互斥式按同岛、同格的不同候选占用段取一次无序对。最后一式只对两端都有普通库位占用段的工序衔接应用。S04 也用这组容量约束。</p>
+    </article>
+  </section>
+
+  __MODEL_AGV__
+
+  <section class="model-section" id="model-process">
+    <h3>6. 业务逻辑约束</h3>
+    <article class="model-card">
+      <h4>先批加工，再释放三条零件路线</h4>
+      <p>每单完成 S01 后处理后，A、B、C 才能在 S01 进入待运状态。三个零件各走自己的工艺路线，可以在不同资源上同时加工。</p>
+      <div class="model-equation" data-tex>C_{o_j^0}=f_j^0,\qquad
+        x_{o_j^0,\ell}=\mathbf 1\{\ell=\ell_1\},\qquad
+        h_e\ge f_j^0 \quad(e\in\mathcal E_j^0).</div>
+      <p class="model-note"><span data-tex>\ell_1</span> 表示 S01，虚拟完成点只用于连接工序，不额外占用设备。</p>
+    </article>
+    <article class="model-card">
+      <h4>先到 buffer 才能上工位</h4>
+      <p>前序工序完成才具备发运条件，跨岛卸完货才可从目标 buffer 上工位。同岛时，前序完工后回到本岛 buffer，再开后序。允许到货与上料在同一时刻先后发生。</p>
+      <div class="model-equation" data-tex>C_{u(e)}\le h_e\le p_e\le q_e\le S_{v(e)}
+        \qquad(e\in\mathcal E).</div>
+    </article>
+    <article class="model-card">
+      <h4>只合装同一订单，并保留合装后的加工路线</h4>
+      <p>同单的 A、B、C 都到达 S05 才可开始合装。合装开工时三件被消耗，生成一件总成。后续仍按 P 的工艺次序加工，完工计入该订单。</p>
+      <div class="model-equation" data-tex>x_{\iota_j,\ell_5}=1,\qquad
+        S_{\iota_j}\ge q_e\quad(e\in\mathcal E_j^{\mathrm K}),\qquad
+        C_j^{\mathrm{out}}=C_{\phi_j}.</div>
+    </article>
+    <article class="model-card">
+      <h4>所有订单都要在计划内完成</h4>
+      <p>在一个时间表上同时检查开工、锁位、装卸、交货和回存。每项必做工作都有时刻，且每一车都先拿到目标位。遇到多岛互等导致的不可行顺序，应改变选岛、投放时刻或车次顺序，直至能提交整批完工的时间表。工艺路线允许回流，静态模型通过时序和容量检验具体计划。</p>
+      <div class="model-equation" data-tex>r_j\le C_j^{\mathrm{out}}\le\bar T\qquad (j\in\mathcal J).</div>
+    </article>
+  </section>
+
+  <section class="model-section" id="model-links">
+    <h3>7. 变量联动与线性化</h3>
+    <article class="model-card">
+      <h4>只有选择成立时，才传递时间和作业顺序</h4>
+      <p>例如某衔接弧并入一个车次，才用该车的派车时刻作为锁位时刻。条件不成立时，用有效上界松弛等式两侧。多条件同时成立可以直接用指示约束，或先建立表示逻辑“且”的辅助 0–1 变量。</p>
+      <div class="model-equation" data-tex>\begin{aligned}
+        z_{ek}=1 \ \Longrightarrow\ h_e=D_k
+        &amp;\iff -M(1-z_{ek})\le h_e-D_k\le M(1-z_{ek}),\\
+        w=x\land y
+        &amp;\iff w\le x,\quad w\le y,\quad w\ge x+y-1,\quad w\in\{0,1\}.
+      \end{aligned}</div>
+      <p class="model-note">这里的 <span data-tex>w,x,y</span> 表示通用二元量。对带行驶或换型常数的条件，选择足够覆盖该项上下界的 <span data-tex>M</span>，设备互斥式也可以直接使用 <span data-tex>\bar T</span> 与额外换型时间的和。</p>
+    </article>
+    <article class="model-card">
+      <h4>占用段在第一件锁位时开始、最后一件取走时结束</h4>
+      <p>求最大值时，端点必须大于等于所有候选时刻，并且等于其中一个。求最小值时反向处理。这样齐套位和 S01 套件位的占用端点与零件事件精确对应。</p>
+      <div class="model-equation" data-tex>\begin{aligned}
+        T^{\max}\ge t_c,\quad T^{\max}\le t_c+M(1-\nu_c),\quad
+          &amp;\sum_c\nu_c=1,\ \nu_c\in\{0,1\},\\
+        T^{\min}\le t_c,\quad T^{\min}\ge t_c-M(1-\chi_c),\quad
+          &amp;\sum_c\chi_c=1,\ \chi_c\in\{0,1\}.
+      \end{aligned}</div>
+      <p class="model-note"><span data-tex>\nu_c,\chi_c</span> 是端点选择用的辅助二元量。式中时间变量保持连续，批量、载荷与格数保持整数。</p>
+    </article>
+  </section>
+</section>

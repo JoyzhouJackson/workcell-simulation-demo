@@ -9,10 +9,11 @@
 - `simpy_six_island_baseline.py` 和 `six_island_engine.js` 分别提供 Python 与浏览器计算模型。
 - `verify_seven_island.py` 对照两套模型的事件、搬运、逐单记录与资源上限。
 - `joint/planner.py` 生成并校验联合排程，页面通过 Worker 中的 Pyodide/SimPy 运行同一实现。回放、滚动条和甘特图的竖线读取同一个秒级时钟。
+- 首页末尾附连续时间数学模型，源稿在 `joint/model-content.html`、`joint/model-equipment.html` 和 `joint/model-agv.html`。该模型用于描述静态联排的约束和目标，网页求解仍由规则排程和 SimPy 校验完成。
 
 ## 运行与生成
 
-安装 `scheduling/requirements.txt` 中的依赖后，可运行下面的命令。
+安装 `scheduling/requirements.txt` 中的依赖并安装 Node.js 后，可运行下面的命令。首页构建时用仓库内的 KaTeX 0.16.25 将公式预渲染为 MathML，浏览器只需加载生成的页面。
 
 ```bash
 python scheduling/run_arrival_experiment.py

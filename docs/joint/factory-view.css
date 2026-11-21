@@ -5,12 +5,12 @@
 .joint-factory .factory-stage {
   position: relative;
   min-width: 0;
-  height: clamp(360px, 36vw, 500px);
+  height: clamp(340px, 31vw, 500px);
   overflow: hidden;
   isolation: isolate;
   background: #e2eaf0;
   border: 1px solid #cddbe3;
-  border-radius: 13px;
+  border-radius: 0 0 11px 11px;
 }
 
 .joint-factory canvas {

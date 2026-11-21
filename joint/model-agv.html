@@ -1,0 +1,90 @@
+<section class="model-section" id="model-agv" aria-labelledby="model-agv-title">
+  <h3 id="model-agv-title">5. AGV 与装卸口约束</h3>
+
+  <article class="model-constraint">
+    <h4>跨岛才生成运输任务</h4>
+    <p>每条工序衔接 <span data-tex>e=(u(e),v(e))</span> 携带一件。前后工序分配到不同实体岛时，这件货恰好加入一个车次。同一实体岛时，只在本岛交接。下式在每条衔接上应用，简记 <span data-tex>u=u(e),\ v=v(e)</span>。</p>
+    <div class="model-equation" data-tex>\begin{aligned}
+      \delta_e &amp;= \sum_{k\in\mathcal K} z_{ek}, &amp; 0\le\delta_e\le 1,\\
+      \delta_e &amp;\ge x_{u\ell}-x_{v\ell}, &amp; \forall \ell\in\mathcal L,\\
+      \delta_e &amp;\le 2-x_{u\ell}-x_{v\ell}, &amp; \forall \ell\in\mathcal L.
+    \end{aligned}</div>
+  </article>
+
+  <article class="model-constraint">
+    <h4>一趟只服务一对实体岛</h4>
+    <p>启用的车次恰好选择一辆车和一个实际起讫点，载量在 1 件到 <span data-tex>Q</span> 件之间。<span data-tex>\rho_k</span> 表示车次是否启用，<span data-tex>N_k</span> 为承运件数。车次可合载不同订单、不同零件类型，但同一车次中每件货的起点和终点都必须与该车次一致。</p>
+    <div class="model-equation" data-tex>\begin{aligned}
+      \rho_k &amp;= \sum_{\ell,m\in\mathcal L:\,\ell\ne m} a_{k\ell m}
+                =\sum_{g\in\mathcal G} w_{kg}, &amp; 0\le\rho_k\le1,\\
+      N_k &amp;= \sum_{e\in\mathcal E} z_{ek}, &amp; \rho_k\le N_k\le Q\rho_k,\\
+      s_{k\ell} &amp;= \sum_{m\in\mathcal L:\,m\ne\ell} a_{k\ell m}, &amp;
+      d_{k\ell}=\sum_{m\in\mathcal L:\,m\ne\ell}a_{km\ell},\\
+      s_{k\ell} &amp;\le x_{u(e)\ell}+1-z_{ek}, &amp;
+      d_{k\ell}\le x_{v(e)\ell}+1-z_{ek}.
+    \end{aligned}</div>
+    <p><span data-tex>s_{k\ell},d_{k\ell}</span> 分别标记车次是否从 <span data-tex>\ell</span> 取货、向 <span data-tex>\ell</span> 送货。起讫岛按实体编号区分，例如 S02-1 和 S02-2 是不同的送货点。</p>
+  </article>
+
+  <article class="model-constraint">
+    <h4>派车、搬运、库位交接与工序开工</h4>
+    <p>派车时同车各件都已完成前序，目的位从派车起锁定。装货结束释放来源位，卸货结束转为目的缓冲实占。后序开工等到卸货完成。同岛衔接在前序完成时回到本岛缓冲，后序再按工位计划开工。</p>
+    <div class="model-equation" data-tex>\begin{aligned}
+      z_{ek}=1 &amp;\ \Longrightarrow\ D_k\ge C_{u(e)},\
+          (h_e,p_e,q_e)=(D_k,P_k,F_k),\\
+      \delta_e=0 &amp;\ \Longrightarrow\ h_e=p_e=q_e=C_{u(e)},\\
+      S_{v(e)} &amp;\ge q_e, \quad \forall e\in\mathcal E.
+    \end{aligned}</div>
+  </article>
+
+  <article class="model-constraint">
+    <h4>同车任务串接及空驶</h4>
+    <p>每辆车从停车区出发，已分配的车次各有一个前序和一个后序。<span data-tex>0</span> 表示停车区虚拟起点，<span data-tex>\bot</span> 表示结束排程的虚拟终点。最后一趟完成后，车辆留在该趟终点待命。</p>
+    <div class="model-equation" data-tex>\begin{aligned}
+      \sum_{h\in(\mathcal K\setminus\{k\})\cup\{0\}}y_{ghk}
+      &amp;= w_{kg}
+        =\sum_{k'\in(\mathcal K\setminus\{k\})\cup\{\bot\}}y_{gkk'},
+          &amp;\forall k\in\mathcal K,\ g\in\mathcal G,\\
+      \sum_{k\in\mathcal K}y_{g0k}
+      &amp;= \sum_{k\in\mathcal K}y_{gk\bot}\le1,
+          &amp;\forall g\in\mathcal G .
+    \end{aligned}</div>
+    <p>车辆必须先完成上一趟卸货，才能从上一趟终点开往下一趟取货岛。第一趟从停车区空驶。同车每趟跨岛运输耗时为正，结合下述时间先后关系，可以排除独立于停车区的循环车次。</p>
+    <div class="model-equation" data-tex>\begin{aligned}
+      y_{ghk}=1 &amp;\ \Longrightarrow\ D_k\ge F_h
+          &amp; (h,k\in\mathcal K,\ h\ne k),\\
+      y_{g0k}=s_{k\ell}=1 &amp;\ \Longrightarrow\
+          A_k=D_k+\tau^0_{0\ell},\\
+      y_{ghk}=d_{hm}=s_{k\ell}=1 &amp;\ \Longrightarrow\
+          A_k=D_k+\tau^0_{m\ell}
+          &amp; (h,k\in\mathcal K,\ h\ne k).
+    \end{aligned}</div>
+  </article>
+
+  <article class="model-constraint">
+    <h4>装、运、卸的时间</h4>
+    <p>到达取货岛后等装卸口，完成装货后按固定路径载货行驶。到达送货岛后再等卸货口，完成卸货时本车才重新可用。装卸时间与载量成正比。<span data-tex>\tau^0,\tau^1</span> 是沿布局路径按车速计算的空驶与载货时间，网页按秒向上取整。</p>
+    <div class="model-equation" data-tex>\begin{aligned}
+      L_k &amp;\ge A_k,\qquad &amp;
+      P_k &amp;= L_k+\lambda^{\mathrm L}N_k,\\
+      R_k &amp;= P_k+\sum_{\ell,m\in\mathcal L:\,\ell\ne m}
+                    \tau^1_{\ell m}a_{k\ell m}, &amp;
+      U_k &amp;\ge R_k,\qquad F_k = U_k+\lambda^{\mathrm U}N_k.
+    \end{aligned}</div>
+    <p>启用凑批时，网页按可立即派车的方案估算这次往返的截止时刻。若有预计在此之前就绪且同起讫、能占到目的位的货，允许等到预计就绪时刻，随后按可装件数派车。</p>
+    <div class="model-equation" data-tex>T^{\rm cutoff}=\widehat F^{\,\rm now}+\tau^0_{m\ell}
+      \qquad(\ell\to m).</div>
+    <p>这里的截止时刻用于仿真派车规则，优化模型的车次可行条件仍是 <span data-tex>1\le N_k\le Q</span>（车次启用时）。路径争用由网页诊断，模型中不约束交叉口和道路会车。</p>
+  </article>
+
+  <article class="model-constraint">
+    <h4>每岛装卸口互斥</h4>
+    <p>每个实体岛只有一个装卸口。把装货段 <span data-tex>[L_k,P_k)</span> 和卸货段 <span data-tex>[U_k,F_k)</span> 视为候选装卸作业 <span data-tex>o\in\mathcal D</span>，其始末时刻记为 <span data-tex>(s_o,f_o)</span>。单位服务时长为零的类型无需进入该集合。装货位置标记 <span data-tex>b_{o\ell}=s_{k\ell}</span>，卸货用 <span data-tex>b_{o\ell}=d_{k\ell}</span>。未启用的车次没有位置，两个作业使用同一岛的装卸口时必须排序。</p>
+    <div class="model-equation" data-tex>\begin{aligned}
+      s_{o'} &amp;\ge f_o-M(3-b_{o\ell}-b_{o'\ell}-\gamma^{\rm dock}_{oo'\ell}),\\
+      s_o &amp;\ge f_{o'}-M(2-b_{o\ell}-b_{o'\ell}+\gamma^{\rm dock}_{oo'\ell}),
+      \quad\forall o&lt;o'\text{ in }\mathcal D,\ \ell\in\mathcal L .
+    \end{aligned}</div>
+    <p>两项都使用该装卸口时，<span data-tex>\gamma^{\rm dock}_{oo'\ell}=1</span> 表示作业 <span data-tex>o</span> 在 <span data-tex>o'</span> 前。行驶到达和等待阶段不占装卸口。上文的条件式也可用求解器的指示约束实现。</p>
+  </article>
+</section>

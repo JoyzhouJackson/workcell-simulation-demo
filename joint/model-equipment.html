@@ -1,0 +1,79 @@
+<section id="model-equipment" class="model-section" aria-labelledby="model-equipment-title">
+  <h3 id="model-equipment-title">3. 设备相关约束</h3>
+
+  <article class="model-card" id="model-print-membership">
+    <h4>整单入批与设备分配</h4>
+    <p>每个订单完整进入一个 S01 批次。启用的批次选择一个允许的批量和一台设备，实际入批订单数等于选定批量。未启用的批次为空，也不分配设备。</p>
+    <div class="model-equation" data-tex>
+      \begin{aligned}
+        \sum_{b\in\mathcal B} a_{jb} &amp;= 1 &amp; &amp;(j\in\mathcal J),\\
+        \sum_{n\in\mathcal N}\lambda_{bn} &amp;= \rho_b,\quad
+        \sum_{d\in\mathcal D^{0}}\mu_{bd} = \rho_b &amp; &amp;(b\in\mathcal B),\\
+        \sum_{j\in\mathcal J}a_{jb} &amp;= \sum_{n\in\mathcal N}n\lambda_{bn}
+          &amp; &amp;(b\in\mathcal B).
+      \end{aligned}
+    </div>
+  </article>
+
+  <article class="model-card" id="model-print-timing">
+    <h4>准备、批加工和后处理</h4>
+    <p>每批从准备开始，准备完成即开始批加工，加工结束即开始后处理。加工时长按批量工时表取值。设备只承担批加工和批次切换。机外准备、后处理可以并行，订单仍占用 S01 的缓冲位。未启用批次的时刻置零。</p>
+    <div class="model-equation" data-tex>
+      \begin{aligned}
+        0\le H_b &amp;\le \bar T\rho_b,\\
+        S_b &amp;= H_b+\tau^{\mathrm{pre}}\rho_b,\\
+        C_b &amp;= S_b+\sum_{n\in\mathcal N}p_n^0\lambda_{bn},\\
+        F_b &amp;= C_b+\tau^{\mathrm{post}}\rho_b
+        \qquad(b\in\mathcal B).
+      \end{aligned}
+    </div>
+    <p>同批订单共享准备开始和后处理结束时刻。订单到达之后才可进入准备，后处理结束后才能放行三条零件路线。</p>
+    <div class="model-equation" data-tex>
+      \begin{aligned}
+        a_{jb}=1 &amp;\ \Longrightarrow\ (s_j^0=H_b,\ f_j^0=F_b)
+        &amp; &amp;(j\in\mathcal J,\ b\in\mathcal B),\\
+        s_j^0 &amp;\ge r_j &amp; &amp;(j\in\mathcal J).
+      \end{aligned}
+    </div>
+  </article>
+
+  <article class="model-card" id="model-print-changeover">
+    <h4>同台设备依次加工与切换</h4>
+    <p>两批同时分配到同一台 S01 设备时，选定唯一的先后顺序。前批加工完成后，须留足设备切换时间，后批才能开始加工。分配到不同设备的批次可同时加工。首批开工前无需为本设备上的前一批预留切换时间。</p>
+    <div class="model-equation" data-tex>
+      \begin{gathered}
+        \mu_{bd}+\mu_{b'd}-1
+          \le \pi_{bb'd}+\pi_{b'bd}
+          \le \min\{\mu_{bd},\,\mu_{b'd}\},\\
+        \pi_{bb'd}=1 \ \Longrightarrow\ S_{b'}\ge C_b+\tau^{\mathrm{sw}},\\
+        \pi_{b'bd}=1 \ \Longrightarrow\ S_b\ge C_{b'}+\tau^{\mathrm{sw}}
+        \qquad (b&lt;b',\ d\in\mathcal D^{0}).
+      \end{gathered}
+    </div>
+  </article>
+
+  <article class="model-card" id="model-workcell-assignment">
+    <h4>实体岛选择与工序时长</h4>
+    <p>每道工序只选择一个具备该工序能力的实体岛。同类实体岛可以互为候选。加工一旦开始，就在选定的岛连续执行至完工。S04 静置段也使用给定时长。</p>
+    <div class="model-equation" data-tex>
+      \sum_{\ell\in\mathcal L_i}x_{i\ell}=1,\qquad
+      C_i=S_i+\sum_{\ell\in\mathcal L_i}p_{i\ell}x_{i\ell}
+      \qquad(i\in\mathcal I).
+    </div>
+  </article>
+
+  <article class="model-card" id="model-workcell-nonoverlap">
+    <h4>单工位互斥与静置并行</h4>
+    <p>S01 以外每个带设备的实体岛只有一个工位。使用同一工位的两道工序必须一先一后，前一道完工后下一道才能开始。S04 可以同时静置多件，容量由缓冲位约束控制。</p>
+    <div class="model-equation" data-tex>
+      \begin{gathered}
+        x_{i\ell}+x_{i'\ell}-1
+          \le \omega_{ii'\ell}+\omega_{i'i\ell}
+          \le \min\{x_{i\ell},\,x_{i'\ell}\},\\
+        \omega_{ii'\ell}=1\ \Longrightarrow\ S_{i'}\ge C_i,\qquad
+        \omega_{i'i\ell}=1\ \Longrightarrow\ S_i\ge C_{i'}\\
+        \bigl(i&lt;i',\ \ell\in\mathcal L^{\mathrm{mach}}\cap\mathcal L_i\cap\mathcal L_{i'}\bigr).
+      \end{gathered}
+    </div>
+  </article>
+</section>
